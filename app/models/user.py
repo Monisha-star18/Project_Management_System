@@ -1,5 +1,5 @@
 from datetime import date, datetime
-from sqlalchemy import DateTime, Integer,String,Identity,UniqueConstraint,Date,Boolean, text,Index,ForeignKey
+from sqlalchemy import CheckConstraint, DateTime, Integer,String,Identity,UniqueConstraint,Date,Boolean, text,Index,ForeignKey
 from sqlalchemy.orm import Mapped,mapped_column
 
 from app.database.base import Base
@@ -10,11 +10,14 @@ class UsersDetails(Base):
     __tablename__="users"
 
     __table_args__=(
+
+        CheckConstraint(
+            "role IN ('admin', 'team_lead', 'employee')",
+            name="ck_users_role"),
+                    
         UniqueConstraint("user_name",
                          name="uq_user_name"),
-        
-        Index("ix_employee_id_user_name", "employee_id","user_name"),
-        
+                
     )
 
     user_id:Mapped[int] = mapped_column(Integer,
@@ -23,20 +26,26 @@ class UsersDetails(Base):
                                     )
 
     employee_id:Mapped[int] = mapped_column(Integer,
-                                            ForeignKey("employee",ondelete="CASCADE"),
-                                            nullable=False
+                                            ForeignKey("employee.employee_id",ondelete="CASCADE"),
+                                            nullable=False,
+                                            unique=True
                                         )
 
-    user_name:Mapped[int] = mapped_column(String(10),
+    user_name:Mapped[str] = mapped_column(String(10),
                                           nullable=False
                                         )
 
-    password_harsh:Mapped[int] = mapped_column(String(20),
+    password_hash:Mapped[str] = mapped_column(String(255),
                                                nullable=False
                                             )
+    
+    role: Mapped[str] = mapped_column(String(20),
+                                    nullable=False,
+                                    server_default="EMPLOYEE"
+                                    )
 
     is_active:Mapped[bool] = mapped_column(Boolean,
-                                            server_default=True,
+                                            server_default=text("true"),
                                             nullable=False
                                             )
     

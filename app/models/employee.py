@@ -1,6 +1,6 @@
 from datetime import date, datetime
 
-from sqlalchemy import DateTime, Integer,String,Identity,UniqueConstraint,Date,Boolean, text,Index
+from sqlalchemy import DateTime, Integer,String,Identity,UniqueConstraint,Date,Boolean, text,Index,CheckConstraint,ForeignKey
 from sqlalchemy.orm import Mapped,mapped_column
 
 from app.database.base import Base
@@ -10,6 +10,7 @@ class EmployeeDate(Base):
     __tablename__="employee"
 
     __table_args__=(
+
         UniqueConstraint("email",
                         name="unique_email"),
 
@@ -17,8 +18,6 @@ class EmployeeDate(Base):
                         name="unique_phone_number"),
 
         Index("ix_employee_dept_email", "department", "email"),
-
-        Index("ix_employee_type", "type"),
 
         Index("ix_employee_is_active", "is_active"),
 
@@ -30,8 +29,7 @@ class EmployeeDate(Base):
                                             )
 
     full_name :Mapped[str] = mapped_column(String(50),
-                                           default="guest",
-                                           nullable=False
+                                           nullable=False 
                                            )
 
     email:Mapped[str] = mapped_column(String(300),
@@ -58,7 +56,7 @@ class EmployeeDate(Base):
                                             )
 
     is_active:Mapped[bool] = mapped_column(Boolean,
-                                        server_default=True,
+                                        server_default=text("true"),
                                         nullable=False
                                         )
 
