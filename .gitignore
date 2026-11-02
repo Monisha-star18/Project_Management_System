@@ -1,0 +1,21 @@
+# ENVIRONMENT VARIABLES & SECRETS
+.env
+
+# PYTHON VIRTUAL ENVIRONMENTS
+.venv/
+
+# PYTHON CACHE FILES
+__pycache__/
+*.py[cod]
+
+# TYPE CHECKERS & LINTERS
+.ruff_cache/
+.pytype/
+
+# DATABASE FILES
+*.db
+*.sql
+
+# LOG FILES
+*.log
+logs/
