@@ -7,7 +7,7 @@ from app.database.base import Base
 
 class ProjectAllotment(Base):
 
-    __tablename__ = "project_allotment"
+    __tablename__ = "project_allotments"
 
     __table_args__ = (
         UniqueConstraint("project_id","employee_id",

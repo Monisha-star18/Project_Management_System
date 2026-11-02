@@ -41,7 +41,7 @@ class UsersDetails(Base):
     
     role: Mapped[str] = mapped_column(String(20),
                                     nullable=False,
-                                    server_default="EMPLOYEE"
+                                    server_default="employee"
                                     )
 
     is_active:Mapped[bool] = mapped_column(Boolean,

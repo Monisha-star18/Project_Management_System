@@ -18,6 +18,4 @@ httpx
 pytest
 pytest-asyncio
 
-logging
-
 ruff

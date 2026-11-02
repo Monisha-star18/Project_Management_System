@@ -42,6 +42,7 @@ class EmployeeDate(Base):
 
     department :Mapped[str] = mapped_column(String(30),
                                             default="Unassigned",
+                                            server_default="Unassigned",
                                             nullable=False
                                             )
 
