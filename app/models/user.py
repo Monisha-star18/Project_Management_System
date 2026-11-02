@@ -25,9 +25,9 @@ class UsersDetails(Base):
                                         primary_key=True
                                     )
 
-    employee_id:Mapped[int] = mapped_column(Integer,
+    employee_id:Mapped[int| None] = mapped_column(Integer,
                                             ForeignKey("employee.employee_id",ondelete="CASCADE"),
-                                            nullable=False,
+                                            nullable=True,
                                             unique=True
                                         )
 

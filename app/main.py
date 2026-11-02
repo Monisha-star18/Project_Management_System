@@ -7,6 +7,8 @@ from app.api.routers.health import router as health_router
 from app.utilites.logger import logger
 from app.middleware.logging_middleware import LoggingMiddleware
 
+from app.scripts.create_admin import create_admin
+
 setting = get_settings()
 
 #lifespane 
@@ -14,6 +16,7 @@ setting = get_settings()
 async def lifespan(app:FastAPI):
 
     logger.info("Project Management System started")
+    await create_admin()
 
     yield
 

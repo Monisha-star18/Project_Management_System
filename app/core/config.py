@@ -12,6 +12,9 @@ class Settings(BaseSettings):
     db_user: str
     db_password: str
 
+    admin_username: str | None = None
+    admin_password: str | None = None
+
     @property
     def database_url(self) -> URL:
         return URL.create(
