@@ -23,14 +23,54 @@ def verify_password(plain_password: str,
     return password_hasher.verify(plain_password, hashed_password)
 
 
-def create_access_token(username: str, role: str) -> str:
+def create_access_token(user_id: int) -> str:
+    settings = get_settings()
+
+    now = datetime.now(UTC)
+
     payload = {
-        "sub": username,
-        "role": role,
-        "exp": datetime.now(UTC) + timedelta(minutes=EXPIRE_MINUTES),
+        "sub": str(user_id),
+        "iat": now,
+        "exp": now + timedelta(minutes=settings.expire_time),
+        "type": "access"
     }
-    return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+
+    return jwt.encode(
+        payload,
+        settings.security_key,
+        algorithm=settings.algorithm
+    )
 
 
-def decode_access_token(token: str) -> dict:
-    return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+def decode_access_token(token: str) -> int:
+    settings = get_settings()
+
+    payload = jwt.decode(
+        token,
+        settings.security_key,
+        algorithms=[settings.algorithm],
+        options={
+            "require": ["sub", "iat", "exp"]
+        }
+    )
+
+    if payload.get("type") != "access":
+        raise jwt.InvalidTokenError(
+            "Invalid token type"
+        )
+
+    subject = payload["sub"]
+
+    if not isinstance(subject, str) or not subject.isdecimal():
+        raise jwt.InvalidTokenError(
+            "Invalid subject"
+        )
+
+    user_id = int(subject)
+
+    if user_id <= 0:
+        raise jwt.InvalidTokenError(
+            "Invalid user ID"
+        )
+
+    return user_id

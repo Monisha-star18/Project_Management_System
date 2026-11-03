@@ -1,5 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-
+from fastapi import APIRouter, Depends, status
+from app.api.dependency.auth import require_roles
 from app.api.dependency.employee_dependency import get_employee_service
 from app.exceptions.employee_exception import EmployeeAlreadyExistsError
 from app.models.employee import EmployeeData
@@ -17,6 +17,7 @@ router = APIRouter(
     "/",
     response_model=EmployeeResponse,
     status_code=status.HTTP_201_CREATED,
+    dependencies=[ Depends(require_roles("admin")) ],
     summary="Create a new Employee",
     description="Create a new Employee for the Company to work on the Projects ",
 )
