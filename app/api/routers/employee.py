@@ -1,6 +1,3 @@
-
-from typing import Annotated
-
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.api.dependency.employee import get_employee_service
@@ -19,8 +16,11 @@ router = APIRouter(
 @router.post(
     "/",
     response_model=EmployeeResponse,
-    status_code=status.HTTP_201_CREATED
+    status_code=status.HTTP_201_CREATED,
+    summary="Create a new Employee",
+    description="Create a new Employee for the Company to work on the Projects ",
 )
+
 async def create_employee(
     employee: EmployeeCreate,
     service: EmployeeService=Depends(get_employee_service) ) -> EmployeeData:

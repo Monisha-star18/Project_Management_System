@@ -8,7 +8,7 @@ class AppException(Exception):
 
 
 class EmployeeAlreadyExistsError(AppException):
-    def __init__(self, employee_id: int):
+    def __init__(self):
             super().__init__(
                 message=f"Employee email or phone already exists",
                 status_code=500

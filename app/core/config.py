@@ -15,6 +15,10 @@ class Settings(BaseSettings):
     admin_username: str | None = None
     admin_password: str | None = None
 
+    security_key :str 
+    algorithm : str
+    expire_time : int
+
     @property
     def database_url(self) -> URL:
         return URL.create(

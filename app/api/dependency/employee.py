@@ -10,9 +10,7 @@ from app.repositories.implementation.employee_repository import EmployeeReposito
 from app.services.employee_service import EmployeeService
 
 
-def get_employee_repository(
-    db:AsyncSession= Depends(get_session)
-    ) -> EmployeeRepositoryInterface:
+def get_employee_repository( db:AsyncSession= Depends(get_session) ) -> EmployeeRepositoryInterface:
 
     return EmployeeRepository(db)
 
