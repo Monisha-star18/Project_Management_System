@@ -9,7 +9,7 @@ from app.api.dependency.auth import (
 )
 from app.services.auth_service import AuthService
 from app.models.user import UsersDetails
-from app.schemas.auth import TokenResponse, UserResponse
+from app.schemas.auth import TokenResponse, CurrentUserResponse
 
 
 router = APIRouter(
@@ -25,8 +25,7 @@ router = APIRouter(
 )
 async def login(
     form: OAuth2PasswordRequestForm = Depends(),
-    service: AuthService = Depends(get_auth_service),
-    dependencies=[ Depends(require_roles("admin")) ]
+    service: AuthService = Depends(get_auth_service)
 ) -> TokenResponse:
 
     token = await service.login(username=form.username,password=form.password)
@@ -36,7 +35,7 @@ async def login(
 
 @router.get(
     "/me",
-    response_model=UserResponse,
+    response_model=CurrentUserResponse,
     summary="Get current user"
 )
 async def get_me(

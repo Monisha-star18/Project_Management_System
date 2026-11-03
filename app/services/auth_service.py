@@ -4,7 +4,6 @@ from jwt.exceptions import InvalidTokenError as JWTDecodeError
 from app.core.security import (
     create_access_token,
     decode_access_token,
-    verify_access_token,
     verify_password
 )
 from app.exceptions.auth_exception import (
@@ -51,7 +50,7 @@ class AuthService:
     async def get_me( self, token: str) -> UsersDetails:
 
         try:
-            user_id = verify_access_token(token)
+            user_id = decode_access_token(token)
 
         except JWTDecodeError as exc:
             raise InvalidTokenError() from exc
@@ -66,20 +65,4 @@ class AuthService:
 
         return user
 
-    async def get_me(self, token: str) -> UsersDetails:
-
-        try:
-            user_id = decode_access_token(token)
-
-        except InvalidTokenError as exc:
-            raise InvalidCredentialsError() from exc
-
-        user = await self.repository.get_user_by_id(user_id)
-
-        if user is None:
-            raise InvalidCredentialsError()
-
-        if not user.is_active:
-            raise InactiveUserError()
-
-        return user
+  
