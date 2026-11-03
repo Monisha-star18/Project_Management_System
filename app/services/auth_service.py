@@ -11,7 +11,7 @@ from app.exceptions.auth_exception import (
     InvalidTokenError,
     InactiveUserError
 )
-from app.models.user import UsersDetails
+from app.models.employee import EmployeeData
 from app.repositories.interfaces.auth_repository_interface import (
     AuthRepositoryInterface
 )
@@ -23,9 +23,9 @@ class AuthService:
     def __init__( self, repository: AuthRepositoryInterface ):
         self.repository = repository
 
-    async def login( self, username: str, password: str ) -> str:
+    async def login( self, email_id: str, password: str ) -> str:
 
-        user = await self.repository.get_user_by_username( username )
+        user = await self.repository.get_employee_by_email(email_id)
 
         if user is None:
             logger.warning("Login failed")
@@ -38,24 +38,24 @@ class AuthService:
         if not user.is_active:
             raise InactiveUserError()
 
-        access_token = create_access_token( user.user_id )
+        access_token = create_access_token( user.email )
 
         logger.info(
             "Login successful | UserID=%s",
-            user.user_id
+            user.employee_id
         )
 
         return access_token
 
-    async def get_me( self, token: str) -> UsersDetails:
+    async def get_me( self, token: str) -> EmployeeData:
 
         try:
-            user_id = decode_access_token(token)
+            email_id = decode_access_token(token)
 
         except JWTDecodeError as exc:
             raise InvalidTokenError() from exc
 
-        user = await self.repository.get_user_by_id(user_id)
+        user = await self.repository.get_employee_by_email(email_id)
 
         if user is None:
             raise InvalidTokenError()

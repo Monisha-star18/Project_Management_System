@@ -37,7 +37,7 @@ class EmployeeData(Base):
                                     )
 
     phone:Mapped[str] = mapped_column(String(10),
-                                    nullable=False
+                                    nullable=True
                                     )
 
     department :Mapped[str] = mapped_column(String(30),
@@ -46,14 +46,19 @@ class EmployeeData(Base):
                                             nullable=False
                                             )
 
-    employee_type:Mapped[str] = mapped_column(String(9),
+    role:Mapped[str] = mapped_column(String(9),
                                               default="employee",
                                               server_default="employee",
                                               nullable=False
                                               )
 
+    password_hash:Mapped[str] = mapped_column(String(255),
+                                                   nullable=False
+                                                )
+    
+
     joining_date:Mapped[date] = mapped_column(Date,
-                                            nullable=False
+                                            nullable=True
                                             )
 
     is_active:Mapped[bool] = mapped_column(Boolean,
@@ -65,3 +70,4 @@ class EmployeeData(Base):
                                                 server_default=text("NOW()"),
                                                 nullable=False
                                                 )
+    

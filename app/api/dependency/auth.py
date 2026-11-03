@@ -7,9 +7,9 @@ from jwt.exceptions import InvalidTokenError
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.models.employee import EmployeeData
 from app.core.security import decode_access_token
 from app.database.session import get_session
-from app.models.user import UsersDetails
 from app.exceptions.auth_exception import (
     InvalidCredentialsError,
     InactiveUserError,
@@ -43,7 +43,7 @@ oauth2_scheme = OAuth2PasswordBearer( tokenUrl="/api/auth/login" )
 async def get_current_user(
     token: str = Depends(oauth2_scheme),
     service:AuthService=Depends(get_auth_service)
-) -> UsersDetails:
+) -> EmployeeData:
 
     return await service.get_me(token)
 
@@ -52,8 +52,8 @@ async def get_current_user(
 def require_roles(*allowed_roles: str):
 
     async def role_checker( 
-            current_user: UsersDetails = Depends(get_current_user) 
-    ) -> UsersDetails:
+            current_user: EmployeeData = Depends(get_current_user) 
+    ) -> EmployeeData:
 
         if current_user.role not in allowed_roles:
             raise PermissionDeniedError()

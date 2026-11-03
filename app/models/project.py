@@ -60,7 +60,7 @@ class ProjectDetails(Base):
                                        )
 
     created_by:Mapped[int] = mapped_column(Integer,
-                                           ForeignKey("users.user_id", ondelete="RESTRICT"),
+                                           ForeignKey("employee.employee_id", ondelete="RESTRICT"),
                                            )
 
     created_at :Mapped[datetime] = mapped_column(DateTime,

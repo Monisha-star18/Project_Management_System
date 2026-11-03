@@ -3,16 +3,12 @@ from logging.config import fileConfig
 
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
-from sqlalchemy.ext.asyncio import async_engine_from_config
-from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.ext.asyncio import async_engine_from_config, create_async_engine
 
 from alembic import context
-import app.models
 from app.core.config import get_settings
 from app.database.base import Base
-
-settings = get_settings()
-
+import app.models
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -65,6 +61,13 @@ def do_run_migrations(connection: Connection) -> None:
     with context.begin_transaction():
         context.run_migrations()
 
+settings = get_settings()
+config = context.config
+
+config.set_main_option(
+    "sqlalchemy.url",
+    settings.database_url.render_as_string(hide_password=False)
+)
 
 async def run_async_migrations() -> None:
     """In this scenario we need to create an Engine
@@ -74,8 +77,8 @@ async def run_async_migrations() -> None:
 
     connectable = create_async_engine(
         settings.database_url,
-        pool_pre_ping=True,
-    )   
+        pool_pre_ping=True
+    )
 
     async with connectable.connect() as connection:
         await connection.run_sync(do_run_migrations)

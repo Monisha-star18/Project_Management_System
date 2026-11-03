@@ -67,7 +67,7 @@ class TaskDetails(Base):
 
     
     assigned_by: Mapped[int] = mapped_column(Integer,
-                                            ForeignKey("users.user_id"),
+                                            ForeignKey("employee.employee_id"),
                                             nullable=False
                                             )
 

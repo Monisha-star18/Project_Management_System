@@ -13,9 +13,11 @@ class Settings(BaseSettings):
     db_user: str
     db_password: str
 
-    admin_username: str | None = None
-    admin_password: str | None = None
-
+    admin_username: str 
+    admin_password: str 
+    admin_email: str
+    admin_role : str
+    
     security_key :str = Field(validation_alias="JWT_SECRET_KEY")
     algorithm : str = Field(validation_alias="JWT_ALGORITHM")
     expire_time : int = Field(validation_alias="ACCESS_TOKEN_EXPIRE_MINUTES")

@@ -5,7 +5,7 @@ from sqlalchemy.engine import Result
 from app.core.config import get_settings
 from app.core.security import hash_password
 from app.database.session import SessionLocal
-from app.models.user import UsersDetails
+from app.models.employee import EmployeeData
 from app.utilites.logger import logger
 
 
@@ -15,10 +15,10 @@ async def create_admin() -> None:
     async with SessionLocal() as session:
 
         result: Result = await session.execute(
-            select(UsersDetails).where( UsersDetails.user_name == settings.admin_username )
+            select(EmployeeData).where( EmployeeData.role == "admin" )
         )
 
-        existing_admin: UsersDetails | None = result.scalar_one_or_none()
+        existing_admin: EmployeeData | None = result.scalar_one_or_none()
 
         if existing_admin is not None:
             logger.info("Admin already exists")
@@ -29,9 +29,9 @@ async def create_admin() -> None:
             raise ValueError("Admin credentials are not configured")
         
 
-        admin: UsersDetails = UsersDetails(
-            employee_id=None,
-            user_name=settings.admin_username,
+        admin: EmployeeData = EmployeeData(
+            full_name = settings.admin_username,
+            email = settings.admin_email,
             password_hash=hash_password(settings.admin_password),
             role="admin",
             is_active=True

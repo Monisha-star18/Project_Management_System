@@ -23,13 +23,13 @@ def verify_password(plain_password: str,
     return password_hasher.verify(plain_password, hashed_password)
 
 
-def create_access_token(user_id: int) -> str:
+def create_access_token(email_id: str) -> str:
     settings = get_settings()
 
     now = datetime.now(UTC)
 
     payload = {
-        "sub": str(user_id),
+        "sub": str(email_id),
         "iat": now,
         "exp": now + timedelta(minutes=settings.expire_time),
         "type": "access"
@@ -61,16 +61,7 @@ def decode_access_token(token: str) -> int:
 
     subject = payload["sub"]
 
-    if not isinstance(subject, str) or not subject.isdecimal():
-        raise jwt.InvalidTokenError(
-            "Invalid subject"
-        )
+    email_id = subject
 
-    user_id = int(subject)
 
-    if user_id <= 0:
-        raise jwt.InvalidTokenError(
-            "Invalid user ID"
-        )
-
-    return user_id
+    return email_id

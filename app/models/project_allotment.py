@@ -29,9 +29,6 @@ class ProjectAllotment(Base):
                                             ForeignKey("employee.employee_id", ondelete="RESTRICT"),
                                             )
 
-    allotted_by:Mapped[int] = mapped_column(Integer,
-                                            ForeignKey("users.user_id", ondelete="RESTRICT"),
-                                            )
 
     allotted_at :Mapped[datetime] = mapped_column(DateTime,
                                                     server_default=text("NOW()"),

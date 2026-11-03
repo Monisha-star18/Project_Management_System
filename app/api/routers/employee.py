@@ -3,7 +3,7 @@ from app.api.dependency.auth import require_roles
 from app.api.dependency.employee_dependency import get_employee_service
 from app.exceptions.employee_exception import EmployeeAlreadyExistsError
 from app.models.employee import EmployeeData
-from app.schemas.employee import EmployeeCreate, EmployeeResponse
+from app.schemas.employee import EmployeeCreate,EmployeeDetailsResponse
 from app.services.employee_service import EmployeeService
 
 
@@ -15,7 +15,7 @@ router = APIRouter(
 
 @router.post(
     "/",
-    response_model=EmployeeResponse,
+    response_model=EmployeeDetailsResponse,
     status_code=status.HTTP_201_CREATED,
     dependencies=[ Depends(require_roles("admin")) ],
     summary="Create a new Employee",
