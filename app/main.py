@@ -5,6 +5,7 @@ from app.core.config import get_settings
 from app.api.routers.health import router as health_router
 from app.api.routers.employee import router as employee_router
 from app.api.routers.auth import router as auth_router
+from app.api.routers.project import router as project_router
 
 from app.exceptions.base_exception import AppException
 from app.exceptions.handlers import app_exception_handler
@@ -52,7 +53,7 @@ async def root() -> dict[str,str]:
 app.include_router(health_router)
 app.include_router(auth_router)
 app.include_router(employee_router)
-
+app.include_router(project_router)
 
 # Register global exception handler
 app.add_exception_handler(
