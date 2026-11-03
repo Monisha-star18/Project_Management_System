@@ -1,9 +1,15 @@
 from datetime import date, datetime
 
 from sqlalchemy import DateTime, Integer,String,Identity,UniqueConstraint,Date,Boolean, text,Index,CheckConstraint,ForeignKey
-from sqlalchemy.orm import Mapped,mapped_column
+from sqlalchemy.orm import Mapped,mapped_column,relationship
 
 from app.database.base import Base
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from app.models.project import ProjectDetails
+    from app.models.project_allotment import ProjectAllotment
+    from app.models.task import TaskDetails
 
 class EmployeeData(Base):
 
@@ -70,4 +76,30 @@ class EmployeeData(Base):
                                                 server_default=text("NOW()"),
                                                 nullable=False
                                                 )
-    
+
+    # Projects led by this employee
+    led_projects: Mapped[list["ProjectDetails"]] = relationship(
+        "ProjectDetails",
+        foreign_keys="ProjectDetails.lead_id",
+        back_populates="lead",
+    )
+
+    # Projects created by this employee (admin)
+    created_projects: Mapped[list["ProjectDetails"]] = relationship(
+        "ProjectDetails",
+        foreign_keys="ProjectDetails.created_by",
+        back_populates="creator",
+    )
+
+    # Projects allotted to this employee
+    project_allotments: Mapped[list["ProjectAllotment"]] = relationship(
+        "ProjectAllotment",
+        back_populates="employee",
+    )
+
+    # Tasks created/assigned by this employee (team lead)
+    assigned_tasks: Mapped[list["TaskDetails"]] = relationship(
+        "TaskDetails",
+        foreign_keys="TaskDetails.assigned_by",
+        back_populates="assigner",
+    )
