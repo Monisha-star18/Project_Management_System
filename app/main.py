@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 
 from app.core.config import get_settings 
 from app.api.routers.health import router as health_router
+from app.api.routers.employee import router as employee_router
 
 from app.utilites.logger import logger
 from app.middleware.logging_middleware import LoggingMiddleware
@@ -35,6 +36,7 @@ app.add_middleware(LoggingMiddleware)
 
 #routers
 app.include_router(health_router)
+app.include_router(employee_router)
 
 
 #base router 

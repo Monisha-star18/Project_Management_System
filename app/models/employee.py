@@ -5,7 +5,7 @@ from sqlalchemy.orm import Mapped,mapped_column
 
 from app.database.base import Base
 
-class EmployeeDate(Base):
+class EmployeeData(Base):
 
     __tablename__="employee"
 
