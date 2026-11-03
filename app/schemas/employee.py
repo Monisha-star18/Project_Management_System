@@ -28,3 +28,22 @@ class EmployeeDetailsResponse(BaseModel):
     phone:str |None = None 
     department:DEPARTMENT
     role: ROLE 
+
+class EmployeeUpdate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    full_name: str | None = Field( default=None, min_length=3, max_length=50)
+    email: EmailStr | None = None
+    phone: str | None = Field(default=None, pattern=r"^[0-9]{10}$")
+    department: DEPARTMENT | None = None
+    role: ROLE | None = None
+    joining_date: date | None = None
+
+
+
+class PaginatedEmployeeResponse(BaseModel):
+    total: int
+    page: int
+    size: int
+    pages: int
+    employees: list[EmployeeDetailsResponse]

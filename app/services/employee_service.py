@@ -6,7 +6,12 @@ from app.exceptions.employee_exception import EmployeeAlreadyExistsError
 from app.models.employee import EmployeeData
 from app.repositories.interfaces.employee_repository_interface import EmployeeRepositoryInterface
 from app.schemas.employee import EmployeeCreate
-
+from app.schemas.employee import EmployeeUpdate
+from app.exceptions.employee_exception import (
+    EmployeeAlreadyExistsError,
+    EmployeeNotFoundError,
+    InvalidEmployeeUpdateError
+)
 class EmployeeService:
 
     def __init__( self, repository: EmployeeRepositoryInterface, db: AsyncSession ) -> None:
@@ -27,3 +32,72 @@ class EmployeeService:
 
             await self.db.rollback()
             raise EmployeeAlreadyExistsError() from exc
+
+        
+    async def get_all_employees( self, page: int, size: int) -> dict:
+
+        employees, total = (
+            await self.repository.get_all_employees(page, size)
+        )
+
+        return {
+            "total": total,
+            "page": page,
+            "size": size,
+            "pages": (total + size - 1) // size,
+            "employees": employees
+        }
+
+
+    async def get_employee_by_id(
+        self, employee_id: int
+    ) -> EmployeeData:
+
+        employee = await self.repository.get_employee_by_id(
+            employee_id
+        )
+
+        if employee is None:
+            raise EmployeeNotFoundError()
+
+        return employee
+
+
+    async def update_employee(
+        self, employee_id: int, data: EmployeeUpdate
+    ) -> EmployeeData:
+
+        employee = await self.get_employee_by_id(employee_id)
+
+        update_data = data.model_dump(exclude_unset=True)
+
+        if any(value is None for value in update_data.values()):
+            raise InvalidEmployeeUpdateError()
+
+        try:
+            updated = await self.repository.update_employee(
+                employee, update_data
+            )
+
+            await self.db.commit()
+            await self.db.refresh(updated)
+
+            return updated
+
+        except IntegrityError as exc:
+            await self.db.rollback()
+            raise EmployeeAlreadyExistsError() from exc
+
+
+    async def delete_employee(self, employee_id: int) -> dict:
+
+        employee = await self.get_employee_by_id(employee_id)
+
+        await self.repository.soft_delete_employee(employee)
+        await self.db.commit()
+
+        return {
+            "message": "Employee deleted successfully",
+            "employee_id": employee_id
+        }
+
