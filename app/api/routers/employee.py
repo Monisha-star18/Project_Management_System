@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from app.api.dependency.employee import get_employee_service
+from app.api.dependency.employee_dependency import get_employee_service
 from app.exceptions.employee_exception import EmployeeAlreadyExistsError
 from app.models.employee import EmployeeData
 from app.schemas.employee import EmployeeCreate, EmployeeResponse
@@ -20,16 +20,10 @@ router = APIRouter(
     summary="Create a new Employee",
     description="Create a new Employee for the Company to work on the Projects ",
 )
-
 async def create_employee(
     employee: EmployeeCreate,
     service: EmployeeService=Depends(get_employee_service) ) -> EmployeeData:
 
-    try:
-        return await service.create_employee(employee)
+    return await service.create_employee(employee)
 
-    except EmployeeAlreadyExistsError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=str(exc)
-        ) from exc
+  

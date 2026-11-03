@@ -1,15 +1,10 @@
-
-#base exception class 
-class AppException(Exception):
-    def __init__(self,message: str,status_code: int = 400):
-        self.message = message
-        self.status_code = status_code
-        super().__init__(message)
+from app.exceptions.base_exception import AppException
 
 
 class EmployeeAlreadyExistsError(AppException):
+
     def __init__(self):
-            super().__init__(
-                message=f"Employee email or phone already exists",
-                status_code=500
-            )
+        super().__init__(
+            message="Employee email or phone already exists",
+            status_code=409
+        )
