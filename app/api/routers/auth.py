@@ -9,13 +9,28 @@ from app.api.dependency.auth import (
 )
 from app.services.auth_service import AuthService
 from app.models.user import UsersDetails
-from app.schemas.auth import TokenResponse, CurrentUserResponse
+from app.schemas.auth import RegisterUserRequest, TokenResponse, CurrentUserResponse
 
 
 router = APIRouter(
     prefix="/api/auth",
     tags=["Authentication"]
 )
+
+
+@router.post(
+    "/registration",
+    response_model=CurrentUserResponse,
+    summary="Create a user to login"
+)
+async def register_new_user(
+    user_deatils : RegisterUserRequest,
+    service: AuthService = Depends(get_auth_service)
+)-> UsersDetails:
+
+    return await service.register_new_user()
+
+
 
 
 @router.post(

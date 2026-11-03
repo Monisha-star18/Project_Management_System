@@ -65,4 +65,5 @@ class AuthService:
 
         return user
 
-  
+    async def register_new_user(self):
+        pass
