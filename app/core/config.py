@@ -1,5 +1,6 @@
 from functools import lru_cache
 
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy.engine import URL
 
@@ -15,9 +16,9 @@ class Settings(BaseSettings):
     admin_username: str | None = None
     admin_password: str | None = None
 
-    security_key :str 
-    algorithm : str
-    expire_time : int
+    security_key :str = Field(validation_alias="JWT_SECRET_KEY")
+    algorithm : str = Field(validation_alias="JWT_ALGORITHM")
+    expire_time : int = Field(validation_alias="ACCESS_TOKEN_EXPIRE_MINUTES")
 
     @property
     def database_url(self) -> URL:

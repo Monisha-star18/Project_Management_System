@@ -36,19 +36,6 @@ app=FastAPI(
 #middleware
 app.add_middleware(LoggingMiddleware)
 
-#routers
-app.include_router(health_router)
-app.include_router(employee_router)
-
-
-
-# Register global exception handler
-app.add_exception_handler(
-    AppException,
-    app_exception_handler
-)
-
-
 #base router 
 @app.get(
     "/",
@@ -58,3 +45,17 @@ app.add_exception_handler(
 )
 async def root() -> dict[str,str]:
     return { "message": "Welcome to Project Management System API"}
+
+
+#routers
+app.include_router(health_router)
+app.include_router(employee_router)
+
+
+
+# Register global exception handler
+app.add_exception_handler(
+    AppException,
+    app_exception_handler 
+)
+
