@@ -1,11 +1,14 @@
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import hash_password
 from app.models.employee import EmployeeData
-from app.repositories.interfaces.employee_repository_interface import EmployeeRepositoryInterface
+from app.repositories.interfaces.employee_repository_interface import (
+    EmployeeRepositoryInterface,
+)
 from app.schemas.employee import EmployeeCreate
-from sqlalchemy import select, func
+
 
 class EmployeeRepository(EmployeeRepositoryInterface):
 
@@ -39,14 +42,7 @@ class EmployeeRepository(EmployeeRepositoryInterface):
 
         result = await self.db.execute(query)
 
-        count_query = (
-            select(func.count(EmployeeData.employee_id))
-            .where(EmployeeData.is_active.is_(True))
-        )
-
-        total = await self.db.scalar(count_query)
-
-        return list(result.scalars().all()), total or 0
+        return list(result.scalars().all())
 
 
     async def get_employee_by_id(self, employee_id: int) -> EmployeeData | None:

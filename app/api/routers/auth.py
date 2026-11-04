@@ -4,12 +4,11 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 from app.api.dependency.auth import (
     get_auth_service,
-    get_current_user,
-    require_roles
+    get_current_user
 )
 from app.services.auth_service import AuthService
 from app.models.employee import EmployeeData
-from app.schemas.auth import LoginRequest,TokenResponse
+from app.schemas.auth import TokenResponse
 from app.schemas.employee import EmployeeDetailsResponse
 
 router = APIRouter(

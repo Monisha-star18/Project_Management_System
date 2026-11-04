@@ -1,4 +1,4 @@
-from datetime import date , datetime
+from datetime import date
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
@@ -36,14 +36,8 @@ class EmployeeUpdate(BaseModel):
     email: EmailStr | None = None
     phone: str | None = Field(default=None, pattern=r"^[0-9]{10}$")
     department: DEPARTMENT | None = None
-    role: ROLE | None = None
-    joining_date: date | None = None
-
 
 
 class PaginatedEmployeeResponse(BaseModel):
-    total: int
-    page: int
-    size: int
     pages: int
     employees: list[EmployeeDetailsResponse]

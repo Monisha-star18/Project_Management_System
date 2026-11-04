@@ -35,15 +35,7 @@ class ProjectAllotmentService:
         self.employee_repository = employee_repository
         self.db = db
 
-    @staticmethod
-    def _require_project_lead(current_user: EmployeeData, lead_id: int) -> None:
-        if (
-            not current_user.is_active
-            or current_user.role != "team_lead"
-            or current_user.employee_id != lead_id
-        ):
-            raise PermissionDeniedError()
-
+    
     async def add_employee(
         self, project_id: int, data: AllotmentCreate, current_user: EmployeeData
     ) -> AllotmentResponse:
