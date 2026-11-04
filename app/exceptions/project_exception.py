@@ -32,3 +32,15 @@ class InvalidProjectUpdateError(AppException):
             message=message,
             status_code=422,
         )
+
+class InvalidProjectDurationError(ValueError):
+    def __init__(self):
+        super().__init__(
+            "Project duration must be at least 7 days"
+        )
+
+class ProjectAlreadyExistsError(Exception):
+    def __init__(self):
+        super().__init__(
+            "Project name already exists"
+        )

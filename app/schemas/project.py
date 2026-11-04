@@ -4,6 +4,8 @@ from typing import Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from app.exceptions.project_exception import InvalidProjectDurationError
+
 
 ProjectStatus = Literal[
     "planning",
@@ -17,14 +19,8 @@ ProjectStatus = Literal[
 class ProjectCreate(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    project_name: str = Field(
-        min_length=3,
-        max_length=100,
-    )
-    project_description: str | None = Field(
-        default=None,
-        max_length=500,
-    )
+    project_name: str = Field(min_length=3,max_length=100,)
+    project_description: str | None = Field(default=None,max_length=500,)
     lead_id: int = Field(gt=0)
     start_date: date
     expected_end_date: date
@@ -35,9 +31,7 @@ class ProjectCreate(BaseModel):
         minimum_end_date = self.start_date + timedelta(days=7)
 
         if self.expected_end_date < minimum_end_date:
-            raise ValueError(
-                "Project duration must be at least 7 days"
-            )
+            raise InvalidProjectDurationError()
 
         return self
 
@@ -96,8 +90,5 @@ class ProjectResponse(BaseModel):
 
 
 class PaginatedProjectResponse(BaseModel):
-    total: int
-    page: int
-    size: int
     pages: int
     projects: list[ProjectResponse]

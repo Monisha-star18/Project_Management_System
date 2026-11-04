@@ -12,10 +12,6 @@ __pycache__/
 .ruff_cache/
 .pytype/
 
-# DATABASE FILES
-*.db
-*.sql
-
 # LOG FILES
 *.log
 logs/

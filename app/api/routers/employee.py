@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter,BackgroundTasks, Depends, Path, Query, status
 
 from app.api.dependency.auth import require_roles
@@ -17,8 +19,8 @@ router = APIRouter(
     tags=["Employees"]
 )
 
-dependAdmin = [Depends(require_roles("admin"))]
 
+dependAdmin = [Depends(require_roles("admin"))]
 dependAll = [Depends(require_roles("admin", "employee", "team_lead"))]
 
 #ADD EMPLOYEE DETAILS

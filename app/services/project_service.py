@@ -1,4 +1,6 @@
 
+from datetime import timedelta
+
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -28,28 +30,38 @@ from app.schemas.project import (
 
 
 class ProjectService:
+
     def __init__(
         self,
         repository: ProjectRepositoryInterface,
         employee_repository: EmployeeRepositoryInterface,
         db: AsyncSession,
     ) -> None:
+
         self.repository = repository
         self.employee_repository = employee_repository
         self.db = db
 
     @staticmethod
-    def _require_admin(current_user: EmployeeData) -> None:
-        if not current_user.is_active or current_user.role != "admin":
+    def _check_project_lead(
+        current_user: EmployeeData,
+        project: ProjectDetails,
+    ) -> None:
+
+        if not current_user.is_active:
             raise PermissionDeniedError()
+
+        if project.lead_id == current_user.employee_id :
+            return
+
+        raise PermissionDeniedError()
 
     async def _validate_lead(
         self,
         lead_id: int,
     ) -> EmployeeData:
-        employee = await self.employee_repository.get_employee_by_id(
-            lead_id
-        )
+
+        employee = await self.employee_repository.get_employee_by_id(lead_id)
 
         if (
             employee is None
@@ -60,47 +72,19 @@ class ProjectService:
 
         return employee
 
-    @staticmethod
-    def _handle_integrity_error(exc: IntegrityError) -> None:
-        # PostgreSQL unique constraint on project_name.
-        original = exc.orig
-        diagnostic = getattr(original, "diag", None)
-
-        constraint_name = getattr(
-            diagnostic,
-            "constraint_name",
-            None,
-        )
-
-        if constraint_name == "uq_project_name":
-            raise ProjectAlreadyExistsError() from exc
-
-        # Preserve unexpected foreign-key/check constraint errors.
-        raise exc
-
+    # CREATE PROJECT - ADMIN ONLY
     async def create_project(
         self,
         project: ProjectCreate,
         current_user: EmployeeData,
     ) -> ProjectDetails:
-        self._require_admin(current_user)
-        await self._validate_lead(project.lead_id)
 
         try:
             new_project = await self.repository.create_new_project(
-                project=project,
-                created_by=current_user.employee_id,
+                project,
+                current_user.employee_id
             )
-
-            # Every project lead must also be allotted.
-            lead_allotment = ProjectAllotment(
-                project_id=new_project.project_id,
-                employee_id=project.lead_id,
-            )
-
-            self.db.add(lead_allotment)
-            await self.db.flush()
-
+            
             await self.db.commit()
             await self.db.refresh(new_project)
 
@@ -108,18 +92,19 @@ class ProjectService:
 
         except IntegrityError as exc:
             await self.db.rollback()
-            self._handle_integrity_error(exc)
-            raise  # Defensive fallback for static analysis.
+            raise ProjectAlreadyExistsError() from exc
 
         except Exception:
             await self.db.rollback()
             raise
 
+    # GET PROJECT BY ID - ROLE BASED
     async def get_project_by_id(
         self,
         project_id: int,
         current_user: EmployeeData,
     ) -> ProjectDetails:
+
         project = await self.repository.get_project_by_id(
             project_id
         )
@@ -139,7 +124,6 @@ class ProjectService:
         ):
             return project
 
-        # Check membership without loading lazy ORM relationships.
         membership = await self.db.scalar(
             select(ProjectAllotment.allotment_id).where(
                 ProjectAllotment.project_id == project_id,
@@ -154,12 +138,14 @@ class ProjectService:
 
         return project
 
+    # GET ALL PROJECTS - ROLE BASED
     async def get_all_projects(
         self,
         page: int,
         size: int,
         current_user: EmployeeData,
     ) -> PaginatedProjectResponse:
+
         if not current_user.is_active:
             raise PermissionDeniedError()
 
@@ -169,12 +155,14 @@ class ProjectService:
             )
 
         if current_user.role == "admin":
+
             projects, total = await self.repository.get_all_projects(
                 page=page,
                 size=size,
             )
 
         elif current_user.role == "team_lead":
+
             projects, total = await self.repository.get_all_projects(
                 page=page,
                 size=size,
@@ -182,6 +170,7 @@ class ProjectService:
             )
 
         elif current_user.role == "employee":
+
             projects, total = await self.repository.get_all_projects(
                 page=page,
                 size=size,
@@ -199,19 +188,25 @@ class ProjectService:
             projects=projects,
         )
 
+    # UPDATE PROJECT - ADMIN OR ASSIGNED PROJECT LEAD
     async def update_project(
         self,
         project_id: int,
         data: ProjectUpdate,
         current_user: EmployeeData,
     ) -> ProjectDetails:
-        self._require_admin(current_user)
 
         project = await self.repository.get_project_by_id(
             project_id
         )
+
         if project is None:
             raise ProjectNotFoundError()
+
+        self._require_admin_or_project_lead(
+            current_user,
+            project,
+        )
 
         update_data = data.model_dump(exclude_unset=True)
 
@@ -232,14 +227,17 @@ class ProjectService:
             "start_date",
             project.start_date,
         )
+
         end_date = update_data.get(
             "expected_end_date",
             project.expected_end_date,
         )
 
-        if end_date < start_date:
+        minimum_end_date = start_date + timedelta(days=7)
+
+        if end_date < minimum_end_date:
             raise InvalidProjectUpdateError(
-                "Expected end date cannot be before start date"
+                "Project duration must be at least 7 days"
             )
 
         if not update_data:
@@ -265,17 +263,20 @@ class ProjectService:
             await self.db.rollback()
             raise
 
+    # CHANGE PROJECT LEAD - ADMIN ONLY
     async def change_project_lead(
         self,
         project_id: int,
         data: ProjectLeadUpdate,
         current_user: EmployeeData,
     ) -> ProjectDetails:
-        self._require_admin(current_user)
+
+        
 
         project = await self.repository.get_project_by_id(
             project_id
         )
+
         if project is None:
             raise ProjectNotFoundError()
 
@@ -293,11 +294,14 @@ class ProjectService:
             )
 
             if allotment is None:
+
                 allotment = ProjectAllotment(
                     project_id=project_id,
                     employee_id=data.lead_id,
                 )
+
                 self.db.add(allotment)
+
             elif not allotment.is_active:
                 allotment.is_active = True
 
@@ -317,21 +321,28 @@ class ProjectService:
             await self.db.rollback()
             raise
 
+    # DELETE PROJECT - ADMIN OR ASSIGNED PROJECT LEAD
     async def delete_project(
         self,
         project_id: int,
         current_user: EmployeeData,
     ) -> dict[str, str | int]:
-        self._require_admin(current_user)
 
         project = await self.repository.get_project_by_id(
             project_id
         )
+
         if project is None:
             raise ProjectNotFoundError()
 
+        self._require_admin_or_project_lead(
+            current_user,
+            project,
+        )
+
         try:
             await self.repository.delete_project(project)
+
             await self.db.commit()
 
         except Exception:

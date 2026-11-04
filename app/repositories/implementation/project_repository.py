@@ -21,6 +21,7 @@ class ProjectRepository(ProjectRepositoryInterface):
         project: ProjectCreate,
         created_by: int,
     ) -> ProjectDetails:
+        
         new_project = ProjectDetails(
             **project.model_dump(),
             created_by=created_by,
