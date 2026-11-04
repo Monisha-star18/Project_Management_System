@@ -25,6 +25,7 @@ from app.schemas.project import (
     PaginatedProjectResponse,
     ProjectCreate,
     ProjectLeadUpdate,
+    ProjectResponse,
     ProjectUpdate,
 )
 
@@ -98,43 +99,16 @@ class ProjectService:
             await self.db.rollback()
             raise
 
-    # GET PROJECT BY ID - ROLE BASED
+    # GET PROJECT BY ID 
     async def get_project_by_id(
         self,
         project_id: int,
-        current_user: EmployeeData,
     ) -> ProjectDetails:
 
-        project = await self.repository.get_project_by_id(
-            project_id
-        )
+        project = await self.repository.get_project_by_id(project_id)
 
         if project is None:
             raise ProjectNotFoundError()
-
-        if not current_user.is_active:
-            raise PermissionDeniedError()
-
-        if current_user.role == "admin":
-            return project
-
-        if (
-            current_user.role == "team_lead"
-            and project.lead_id == current_user.employee_id
-        ):
-            return project
-
-        membership = await self.db.scalar(
-            select(ProjectAllotment.allotment_id).where(
-                ProjectAllotment.project_id == project_id,
-                ProjectAllotment.employee_id
-                == current_user.employee_id,
-                ProjectAllotment.is_active.is_(True),
-            )
-        )
-
-        if membership is None:
-            raise PermissionDeniedError()
 
         return project
 
@@ -143,50 +117,9 @@ class ProjectService:
         self,
         page: int,
         size: int,
-        current_user: EmployeeData,
-    ) -> PaginatedProjectResponse:
+    )->ProjectDetails:
 
-        if not current_user.is_active:
-            raise PermissionDeniedError()
-
-        if page < 1 or not 1 <= size <= 100:
-            raise InvalidProjectUpdateError(
-                "Page must be >= 1 and size must be between 1 and 100"
-            )
-
-        if current_user.role == "admin":
-
-            projects, total = await self.repository.get_all_projects(
-                page=page,
-                size=size,
-            )
-
-        elif current_user.role == "team_lead":
-
-            projects, total = await self.repository.get_all_projects(
-                page=page,
-                size=size,
-                lead_id=current_user.employee_id,
-            )
-
-        elif current_user.role == "employee":
-
-            projects, total = await self.repository.get_all_projects(
-                page=page,
-                size=size,
-                member_employee_id=current_user.employee_id,
-            )
-
-        else:
-            raise PermissionDeniedError()
-
-        return PaginatedProjectResponse(
-            total=total,
-            page=page,
-            size=size,
-            pages=(total + size - 1) // size,
-            projects=projects,
-        )
+        return await self.repository.get_all_projects(page,size)
 
     # UPDATE PROJECT - ADMIN OR ASSIGNED PROJECT LEAD
     async def update_project(
@@ -196,42 +129,18 @@ class ProjectService:
         current_user: EmployeeData,
     ) -> ProjectDetails:
 
-        project = await self.repository.get_project_by_id(
-            project_id
-        )
+        project = await self.repository.get_project_by_id(project_id)
 
         if project is None:
             raise ProjectNotFoundError()
 
-        self._require_admin_or_project_lead(
-            current_user,
-            project,
-        )
+        self._check_project_lead(current_user,project)
 
         update_data = data.model_dump(exclude_unset=True)
 
-        required_fields = {
-            "project_name",
-            "start_date",
-            "expected_end_date",
-            "status",
-        }
+        start_date = update_data.get("start_date",project.start_date)
 
-        for field in required_fields:
-            if field in update_data and update_data[field] is None:
-                raise InvalidProjectUpdateError(
-                    f"{field} cannot be null"
-                )
-
-        start_date = update_data.get(
-            "start_date",
-            project.start_date,
-        )
-
-        end_date = update_data.get(
-            "expected_end_date",
-            project.expected_end_date,
-        )
+        end_date = update_data.get("expected_end_date",project.expected_end_date)
 
         minimum_end_date = start_date + timedelta(days=7)
 
@@ -244,10 +153,7 @@ class ProjectService:
             return project
 
         try:
-            updated = await self.repository.update_project(
-                project,
-                update_data,
-            )
+            updated = await self.repository.update_project(project,update_data)
 
             await self.db.commit()
             await self.db.refresh(updated)
@@ -256,8 +162,7 @@ class ProjectService:
 
         except IntegrityError as exc:
             await self.db.rollback()
-            self._handle_integrity_error(exc)
-            raise
+            raise ProjectAlreadyExistsError() from exc
 
         except Exception:
             await self.db.rollback()
@@ -267,25 +172,29 @@ class ProjectService:
     async def change_project_lead(
         self,
         project_id: int,
-        data: ProjectLeadUpdate,
-        current_user: EmployeeData,
+        data: ProjectLeadUpdate
     ) -> ProjectDetails:
 
-        
-
-        project = await self.repository.get_project_by_id(
-            project_id
-        )
+        project = await self.repository.get_project_by_id(project_id)
 
         if project is None:
             raise ProjectNotFoundError()
 
-        await self._validate_lead(data.lead_id)
-
-        if project.lead_id == data.lead_id:
-            return project
+        old_project_lead_id = project.lead_id
 
         try:
+
+            old_allotment = await self.db.scalar(
+                select(ProjectAllotment).where(
+                    ProjectAllotment.project_id == project_id,
+                    ProjectAllotment.employee_id == old_project_lead_id,
+                )
+            )
+            
+            if old_allotment is not None:
+                old_allotment.is_active = False
+                old_allotment.remark_on_remove = data.remark_on_remove        
+
             allotment = await self.db.scalar(
                 select(ProjectAllotment).where(
                     ProjectAllotment.project_id == project_id,
@@ -307,10 +216,7 @@ class ProjectService:
 
             await self.db.flush()
 
-            updated = await self.repository.update_project(
-                project,
-                {"lead_id": data.lead_id},
-            )
+            updated = await self.repository.update_project(project,{"lead_id": data.lead_id})
 
             await self.db.commit()
             await self.db.refresh(updated)
@@ -325,20 +231,12 @@ class ProjectService:
     async def delete_project(
         self,
         project_id: int,
-        current_user: EmployeeData,
     ) -> dict[str, str | int]:
 
-        project = await self.repository.get_project_by_id(
-            project_id
-        )
+        project = await self.repository.get_project_by_id(project_id)
 
         if project is None:
             raise ProjectNotFoundError()
-
-        self._require_admin_or_project_lead(
-            current_user,
-            project,
-        )
 
         try:
             await self.repository.delete_project(project)

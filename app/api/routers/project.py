@@ -52,23 +52,6 @@ async def create_project(
     return await service.create_project(project,current_user)
 
 
-# GET ALL PROJECTS - ROLE-BASED VISIBILITY
-@router.get(
-    "/",
-    response_model=PaginatedProjectResponse,
-    dependencies = dependAll,
-    summary="Get all accessible projects"
-)
-async def get_all_projects(
-    current_user: CurrentUserDep,
-    service: ProjectServiceDep,
-    page: Annotated[int, Query(ge=1)] = 1,
-    size: Annotated[int, Query(ge=1, le=100)] = 10,
-) -> PaginatedProjectResponse:
-    
-    return await service.get_all_projects(page,size,current_user,)
-
-
 # GET PROJECT BY ID
 @router.get(
     "/{project_id}",
@@ -78,20 +61,33 @@ async def get_all_projects(
 )
 async def get_project_by_id(
     project_id: ProjectId,
-    current_user: CurrentUserDep,
     service: ProjectServiceDep,
 ) -> ProjectDetails:
-    return await service.get_project_by_id(
-        project_id=project_id,
-        current_user=current_user,
-    )
+    
+    return await service.get_project_by_id(project_id)
+
+
+# GET ALL PROJECTS - ROLE-BASED VISIBILITY
+@router.get(
+    "/",
+    response_model=list[ProjectResponse],
+    dependencies = dependAll,
+    summary="Get all accessible projects"
+)
+async def get_all_projects(
+    service: ProjectServiceDep,
+    page: Annotated[int, Query(ge=1,le=100)] = 1,
+    size: Annotated[int, Query(ge=1, le=100)] = 10,
+)->ProjectDetails:
+    
+    return await service.get_all_projects(page,size)
 
 
 # UPDATE PROJECT - ADMIN ONLY
 @router.patch(
     "/{project_id}",
     response_model=ProjectResponse,
-    dependencies = dependAll,
+    dependencies = dependAdmin_Lead,
     summary="Update project details",
 )
 async def update_project(
@@ -100,11 +96,8 @@ async def update_project(
     current_user: AdminLeadUserDep,
     service: ProjectServiceDep,
 ) -> ProjectDetails:
-    return await service.update_project(
-        project_id=project_id,
-        data=project,
-        current_user=current_user,
-    )
+    
+    return await service.update_project( project_id, project, current_user)
 
 
 # CHANGE PROJECT LEAD - ADMIN ONLY
@@ -117,14 +110,10 @@ async def update_project(
 async def change_project_lead(
     project_id: ProjectId,
     data: ProjectLeadUpdate,
-    current_user: AdminUserDep,
     service: ProjectServiceDep,
 ) -> ProjectDetails:
-    return await service.change_project_lead(
-        project_id=project_id,
-        data=data,
-        current_user=current_user,
-    )
+    
+    return await service.change_project_lead(project_id,data)
 
 
 # DELETE PROJECT - ADMIN ONLY
@@ -136,10 +125,7 @@ async def change_project_lead(
 )
 async def delete_project(
     project_id: ProjectId,
-    current_user: AdminLeadUserDep,
     service: ProjectServiceDep,
 ) -> dict[str, str | int]:
-    return await service.delete_project(
-        project_id=project_id,
-        current_user=current_user,
-    )
+    
+    return await service.delete_project(project_id)

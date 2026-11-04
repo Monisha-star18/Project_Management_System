@@ -25,14 +25,7 @@ class ProjectRepositoryInterface(ABC):
         """Retrieve a project by its ID."""
         ...
 
-    @abstractmethod
-    async def get_project_by_name(
-        self,
-        project_name: str,
-    ) -> ProjectDetails | None:
-        """Retrieve a project by its name."""
-        ...
-
+   
     @abstractmethod
     async def get_all_projects(
         self,

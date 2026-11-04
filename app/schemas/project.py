@@ -72,6 +72,7 @@ class ProjectLeadUpdate(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     lead_id: int = Field(gt=0)
+    remark_on_remove :str = Field(min_length=10,max_length=100,)
 
 
 class ProjectResponse(BaseModel):
