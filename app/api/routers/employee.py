@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Path, Query, status
+from fastapi import APIRouter,BackgroundTasks, Depends, Path, Query, status
 
 from app.api.dependency.auth import require_roles
 from app.api.dependency.employee_dependency import get_employee_service
@@ -10,6 +10,7 @@ from app.schemas.employee import (
     PaginatedEmployeeResponse,
 )
 from app.services.employee_service import EmployeeService
+from app.services.email.employee_created_email import EmployeeCreatedEmail
 
 router = APIRouter(
     prefix="/api/employees",
@@ -19,7 +20,6 @@ router = APIRouter(
 dependAdmin = [Depends(require_roles("admin"))]
 
 dependAll = [Depends(require_roles("admin", "employee", "team_lead"))]
-
 
 #ADD EMPLOYEE DETAILS
 @router.post(
@@ -32,10 +32,21 @@ dependAll = [Depends(require_roles("admin", "employee", "team_lead"))]
 )
 async def create_employee(
     employee: EmployeeCreate,
+    background_tasks: BackgroundTasks,
     service: EmployeeService=Depends(get_employee_service)
 ) -> EmployeeData:
 
-    return await service.create_employee(employee)
+    new_employee = await service.create_employee(employee)
+
+    email_service = EmployeeCreatedEmail()
+
+    background_tasks.add_task(
+        email_service.send_safely,
+        new_employee.email,
+        new_employee.full_name,
+    )
+
+    return new_employee
 
 
 # GET ALL EMPLOYEES WITH PAGINATION

@@ -22,6 +22,11 @@ class Settings(BaseSettings):
     algorithm : str = Field(validation_alias="JWT_ALGORITHM")
     expire_time : int = Field(validation_alias="ACCESS_TOKEN_EXPIRE_MINUTES")
 
+    mailjet_api_key: str
+    mailjet_secret_key: str
+    mailjet_sender_email: str
+    mailjet_sender_name: str 
+
     @property
     def database_url(self) -> URL:
         return URL.create(

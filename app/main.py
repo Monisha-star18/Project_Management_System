@@ -7,6 +7,7 @@ from app.api.routers.employee import router as employee_router
 from app.api.routers.auth import router as auth_router
 from app.api.routers.project import router as project_router
 from app.api.routers.project_allotment import router as project_allotment_router
+from app.api.routers.task import router as task_router
 
 from app.exceptions.base_exception import AppException
 from app.exceptions.handlers import app_exception_handler
@@ -56,7 +57,7 @@ app.include_router(auth_router)
 app.include_router(employee_router)
 app.include_router(project_router)
 app.include_router(project_allotment_router)
-
+app.include_router(task_router)
 
 # Register global exception handler
 app.add_exception_handler(
