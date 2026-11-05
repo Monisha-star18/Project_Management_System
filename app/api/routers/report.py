@@ -1,0 +1,33 @@
+from fastapi import APIRouter, Depends, Path
+
+from app.api.dependency.auth import require_roles
+from app.api.dependency.report_dependency import get_report_service
+from app.schemas.report import ProjectReportResponse
+from app.services.report_service import ReportService
+
+
+router = APIRouter(
+    prefix="/api/reports",
+    tags=["Reports"]
+)
+
+
+dependAdminLead = [
+    Depends(require_roles("admin", "team_lead"))
+]
+
+
+# GET PROJECT REPORT BY ID
+@router.get(
+    "/projects/{project_id}",
+    response_model=ProjectReportResponse,
+    dependencies=dependAdminLead,
+    summary="Get project report",
+    description="Get project details, employee count, total tasks, completed tasks and completion percentage"
+)
+async def get_project_report(
+    project_id: int = Path(..., gt=0),
+    service: ReportService = Depends(get_report_service)
+) -> dict:
+
+    return await service.get_project_report(project_id)
