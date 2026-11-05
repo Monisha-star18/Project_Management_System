@@ -23,7 +23,7 @@ dependAll = [
     response_model=ProjectReportResponse,
     dependencies=dependAll,
     summary="Get project report",
-    description="Get project details, employee count, total tasks, completed tasks and completion percentage"
+    description="Generate a detailed project report containing project information, total active allotted employees, total tasks, completed tasks, task completion percentage and overall project progress percentage calculated from the average progress of all project tasks. Accessible to admins, team leads and employees."
 )
 async def get_project_report(
     project_id: int = Path(..., gt=0),

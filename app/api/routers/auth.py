@@ -24,7 +24,8 @@ router = APIRouter(
 )
 async def login(
     form: OAuth2PasswordRequestForm = Depends(),
-    service: AuthService = Depends(get_auth_service)
+    service: AuthService = Depends(get_auth_service),
+    description="Authenticate a registered user using their email address and password. Returns a JWT access token for accessing protected APIs."
 ) -> TokenResponse:
 
     token = await service.login(email_id=form.username , password=form.password)
@@ -35,7 +36,8 @@ async def login(
 @router.get(
     "/me",
     response_model= EmployeeDetailsResponse,
-    summary="Get current user"
+    summary="Get current user",
+    description="Retrieve the authenticated user's profile details using a valid JWT access token."
 )
 async def get_me(
     current_user: EmployeeData = Depends(get_current_user) ) -> EmployeeData:

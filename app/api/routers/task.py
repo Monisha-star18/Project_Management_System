@@ -47,7 +47,8 @@ EmployeeId = Annotated[int, Path(gt=0)]
     response_model=TaskResponse,
     status_code=status.HTTP_201_CREATED,
     dependencies=dependLead,
-    summary="Create project task (project lead only)"
+    summary="Create project task (project lead only)",
+    description="Assigned project team lead only. Create a task for an employee already allotted to the project. Stores task details, priority, dates and assigned team lead information, and sends a task assignment email notification."
 )
 async def create_task(
     project_id: ProjectId,
@@ -87,7 +88,8 @@ async def create_task(
     "/projects/{project_id}/tasks",
     response_model=list[TaskResponse],
     dependencies=dependAll,
-    summary="List project tasks "
+    summary="List project tasks ",
+    description="Retrieve all tasks belonging to a specific project. Admins can view project tasks, while team leads can view tasks only for projects assigned to them."
 )
 async def list_project_tasks(
     project_id: ProjectId,
@@ -102,7 +104,8 @@ async def list_project_tasks(
     "/tasks/{task_id}",
     response_model=TaskResponse,
     dependencies=dependAll,
-    summary="Get task (project lead, assignee or admin)"
+    summary="Get task (project lead, assignee or admin)",
+    description="Retrieve complete details of a specific task using its task ID. Accessible to admins, the assigned project team lead and the employee assigned to the task."
 )
 async def get_task(
     task_id: TaskId,
@@ -117,7 +120,9 @@ async def get_task(
     "/employees/me/tasks",
     response_model=list[TaskResponse],
     dependencies=dependEmployee,
-    summary="Get my assigned tasks"
+    summary="Get my assigned tasks",
+    description="Employee only. Retrieve all tasks assigned to the currently authenticated employee through their active project allotments."
+
 )
 async def get_my_tasks(
     current_user: CurrentUserDep,
@@ -131,7 +136,8 @@ async def get_my_tasks(
     "/projects/{project_id}/employees/{employee_id}/tasks",
     response_model=list[TaskResponse],
     dependencies=dependAll,
-    summary="Get tasks for an employee within a project"
+    summary="Get tasks for an employee within a project",
+    description="Retrieve tasks assigned to a specific employee within a particular project. Accessible to admins, the assigned project team lead and the employee viewing their own tasks."
 )
 async def get_employee_project_tasks(
     project_id: ProjectId,
@@ -151,7 +157,8 @@ async def get_employee_project_tasks(
     "/tasks/{task_id}",
     response_model=TaskResponse,
     dependencies=dependLead,
-    summary="Update task (project lead only)"
+    summary="Update task (project lead only)",
+    description="Assigned project team lead only. Update task information including title, description, priority, dates or assigned employee. Reassignment requires the employee to have a valid project allotment."
 )
 async def update_task(
     task_id: TaskId,
@@ -167,7 +174,8 @@ async def update_task(
     "/tasks/{task_id}/progress",
     response_model=TaskResponse,
     dependencies=dependEmployee,
-    summary="Update task progress (assigned employee only)"
+    summary="Update task progress (assigned employee only)",
+    description="Assigned employee only. Update the progress percentage, status and remarks of an assigned task. A completed task must have 100 percent progress, and 100 percent progress requires completed status."
 )
 async def update_task_progress(
     task_id: TaskId,
@@ -182,7 +190,8 @@ async def update_task_progress(
 @router.delete(
     "/tasks/{task_id}",
     dependencies=dependLead,
-    summary="Delete task (project lead only)"
+    summary="Delete task (project lead only)",
+    description="Assigned project team lead only. Permanently delete a task using its task ID. Team leads cannot delete tasks belonging to projects assigned to another team lead."
 )
 async def delete_task(
     task_id: TaskId,

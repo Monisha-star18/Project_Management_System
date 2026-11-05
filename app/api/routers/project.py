@@ -41,7 +41,8 @@ ProjectId = Annotated[int, Path(gt=0)]
     response_model=ProjectResponse,
     status_code=status.HTTP_201_CREATED,
     dependencies = dependAdmin,
-    summary="Create a new project"
+    summary="Create a new project",
+    description="Admin only. Create a new project with its name, description, start date, end date and assigned team lead. The selected project lead must be a valid team lead."
 )
 async def create_project(
     project: ProjectCreate,
@@ -57,7 +58,8 @@ async def create_project(
     "/{project_id}",
     response_model=ProjectResponse,
     dependencies = dependAll,
-    summary="Get project by ID"
+    summary="Get project by ID",
+    description="Retrieve the details of a specific project using its project ID. Accessible to authenticated admins, team leads and employees."
 )
 async def get_project_by_id(
     project_id: ProjectId,
@@ -72,7 +74,8 @@ async def get_project_by_id(
     "/",
     response_model=list[ProjectResponse],
     dependencies = dependAll,
-    summary="Get all accessible projects"
+    summary="Get all accessible projects",
+    description="Retrieve a paginated list of projects. Accessible to authenticated admins, team leads and employees. Supports page and size query parameters."
 )
 async def get_all_projects(
     service: ProjectServiceDep,
@@ -89,6 +92,7 @@ async def get_all_projects(
     response_model=ProjectResponse,
     dependencies = dependAdmin_Lead,
     summary="Update project details",
+    description="Update an existing project's details such as its name, description and dates. Accessible to admins and team leads, subject to project ownership validation."
 )
 async def update_project(
     project_id: ProjectId,
@@ -106,6 +110,7 @@ async def update_project(
     response_model=ProjectResponse,
     dependencies = dependAdmin,
     summary="Change project team lead",
+    description="Admin only. Change the assigned team lead of an existing project. The new project lead must be a valid and active employee with the team_lead role."
 )
 async def change_project_lead(
     project_id: ProjectId,
@@ -122,6 +127,7 @@ async def change_project_lead(
     status_code=status.HTTP_200_OK,
     dependencies = dependAdmin,
     summary="Delete a project",
+    description="Admin only. Delete an existing project using its project ID. Related project records may be affected according to the configured database relationships."
 )
 async def delete_project(
     project_id: ProjectId,

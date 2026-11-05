@@ -44,6 +44,7 @@ EmployeeId = Annotated[int, Path(gt=0)]
     status_code=status.HTTP_201_CREATED,
     dependencies=dependLead,
     summary="Allot an employee to a project (project lead only)",
+    description="Assigned project team lead only. Allot an active employee to a project. Prevents duplicate allotments and sends an email notification to the employee after successful assignment."
 )
 async def add_project_employee(
     project_id: ProjectId,
@@ -77,6 +78,8 @@ async def add_project_employee(
     response_model=AllotmentListResponse,
     dependencies = dependAll,
     summary="List employees allotted to a project",
+    description="Retrieve all active employees allotted to a specific project, including their employee details and total member count. Accessible to admins, team leads and employees."
+
 )
 async def list_project_employees(
     project_id: ProjectId,
@@ -91,6 +94,7 @@ async def list_project_employees(
     response_model=list[AllotmentResponse],
     dependencies = dependAll,
     summary="Get employee project allotments",
+    description="Retrieve all project allotments associated with a specific employee using their employee ID. Accessible to authenticated admins, team leads and employees."
 )
 async def get_employee_allotments(
     employee_id: Annotated[int, Path(gt=0)],
@@ -104,6 +108,7 @@ async def get_employee_allotments(
     "/{project_id}/allotments/{employee_id}",
     dependencies = dependLead,
     summary="Remove an employee and delete their tasks in this project",
+    description="Team lead only. Remove an employee from a specified project allotment and delete their associated project tasks. The current project lead cannot be removed through this endpoint."
 )
 async def remove_project_employee(
     project_id: ProjectId,

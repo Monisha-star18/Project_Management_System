@@ -30,7 +30,7 @@ dependAll = [Depends(require_roles("admin", "employee", "team_lead"))]
     status_code=status.HTTP_201_CREATED,
     dependencies=dependAdmin,
     summary="Create a new Employee",
-    description="Create a new Employee for the Company to work on the Projects ",
+    description="Admin only. Register a new employee with their personal details, email, password and assigned role. Sends a registration notification email to the newly created employee."
 )
 async def create_employee(
     employee: EmployeeCreate,
@@ -56,7 +56,8 @@ async def create_employee(
     "/",
     response_model=PaginatedEmployeeResponse,
     dependencies=dependAll,
-    summary="Get all employees with pagination"
+    summary="Get all employees with pagination",
+    description="Retrieve a paginated list of registered employees. Accessible to admins, team leads and employees. Supports page and size query parameters."
 )
 async def get_all_employees(
     page: int = Query(1, ge=1),
@@ -71,7 +72,8 @@ async def get_all_employees(
     "/{employee_id}",
     response_model=EmployeeDetailsResponse,
     dependencies=dependAll,
-    summary="Get employee by ID"
+    summary="Get employee by ID",
+    description="Retrieve the details of a specific employee using their employee ID. Accessible to authenticated admins, team leads and employees."
 )
 async def get_employee_by_id(
     employee_id: int = Path(..., gt=0),
@@ -85,7 +87,8 @@ async def get_employee_by_id(
     "/{employee_id}",
     response_model=EmployeeDetailsResponse,
     dependencies=dependAdmin,
-    summary="Update employee details"
+    summary="Update employee details",
+    description="Admin only. Update an existing employee's details using their employee ID. Only the fields provided in the request are updated."
 )
 async def update_employee(
     employee_id: int,
@@ -99,7 +102,8 @@ async def update_employee(
 @router.delete(
     "/{employee_id}",
     dependencies=dependAdmin,
-    summary="Soft delete employee"
+    summary="Soft delete employee",
+    description="Admin only. Soft delete an employee by marking their account as inactive without permanently removing their record from the database."
 )
 async def delete_employee(
     employee_id: int,
