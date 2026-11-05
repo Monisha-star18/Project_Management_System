@@ -13,6 +13,8 @@ class Settings(BaseSettings):
     db_user: str
     db_password: str
 
+    test_db_name :str
+
     admin_username: str 
     admin_password: str 
     admin_email: str
@@ -37,6 +39,17 @@ class Settings(BaseSettings):
             port=self.db_port,
             database=self.db_name,
         )
+
+    @property
+    def test_database_url(self) -> URL:
+            return URL.create(
+                drivername="postgresql+asyncpg",
+                username=self.db_user,
+                password=self.db_password,
+                host=self.db_host,
+                port=self.db_port,
+                database=self.test_db_name,
+            )
 
     model_config = SettingsConfigDict(
         env_file=".env",
