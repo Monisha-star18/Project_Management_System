@@ -79,8 +79,15 @@ class ProjectAllotmentService:
             raise AllotmentConflictError()
 
         try:
-            allotment = await self.repository.add_member(project_id, data.employee_id)
-           
+            if existing is not None:
+                allotment = existing
+                allotment.is_active = True
+                allotment.remark_on_remove = None
+            else:
+                allotment = await self.repository.add_member(
+                    project_id, data.employee_id
+                )
+                
             await self.db.commit()
             await self.db.refresh(allotment)
         
@@ -149,6 +156,8 @@ class ProjectAllotmentService:
        
         if project is None:
             raise ProjectAllotmentNotFoundError()
+
+        self._check_project_lead(current_user, project)
             
         if employee_id == project.lead_id:
             raise AllotmentConflictError("Current project lead cannot be removed")
