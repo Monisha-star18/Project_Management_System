@@ -37,26 +37,39 @@ class ProjectAllotmentService:
 
     
     async def add_employee(
-        self, project_id: int, data: AllotmentCreate, current_user: EmployeeData
+        self, 
+        project_id: int, 
+        data: AllotmentCreate, 
+        current_user: EmployeeData
     ) -> AllotmentResponse:
+        
         project = await self.repository.get_project_with_members(project_id)
+        
         if project is None:
             raise ProjectAllotmentNotFoundError()
-        self._require_project_lead(current_user, project.lead_id)
-
+        
         employee = await self.employee_repository.get_employee_by_id(data.employee_id)
-        if employee is None or not employee.is_active or employee.role == "admin":
+        
+        if (
+            employee is None
+            or not employee.is_active
+            or employee.role == "admin"
+        ):
             raise InvalidAllotmentEmployeeError()
 
         existing = await self.repository.get_membership(project_id, data.employee_id)
+        
         if existing is not None:
             raise AllotmentConflictError()
 
         try:
             allotment = await self.repository.add_member(project_id, data.employee_id)
+           
             await self.db.commit()
             await self.db.refresh(allotment)
+        
         except IntegrityError as exc:
+           
             await self.db.rollback()
             # Only report a membership conflict for this unique constraint.
             diag = getattr(getattr(exc, "orig", None), "diag", None)
@@ -64,55 +77,68 @@ class ProjectAllotmentService:
             if constraint_name == "uq_project_employee":
                 raise AllotmentConflictError() from exc
             raise
+        
         except Exception:
             await self.db.rollback()
             raise
 
         # No lazy loading: the employee was explicitly fetched above.
-        return AllotmentResponse.model_validate(
-            {
-                "allotment_id": allotment.allotment_id,
-                "project_id": allotment.project_id,
-                "employee_id": allotment.employee_id,
-                "allotted_at": allotment.allotted_at,
-                "is_active": allotment.is_active,
-                "employee": employee,
-            }
+        return AllotmentResponse(
+                allotment_id=allotment.allotment_id,
+                project_id=allotment.project_id,
+                employee_id=allotment.employee_id,
+                employee_name=employee.full_name,
+                role=employee.role,
         )
 
     async def list_members(
-        self, project_id: int, current_user: EmployeeData
+        self,
+        project_id: int,
     ) -> AllotmentListResponse:
+
         project = await self.repository.get_project_with_members(project_id)
+
         if project is None:
             raise ProjectAllotmentNotFoundError()
 
-        members = [a for a in project.allotments if a.is_active]
-        is_member = any(a.employee_id == current_user.employee_id for a in members)
-        if not current_user.is_active or not (
-            current_user.role == "admin"
-            or (current_user.role == "team_lead" and project.lead_id == current_user.employee_id)
-            or is_member
-        ):
-            raise PermissionDeniedError()
+        members = [
+            allotment
+            for allotment in project.allotments
+            if allotment.is_active
+        ]
 
         return AllotmentListResponse(
             project_id=project_id,
             total=len(members),
-            members=[AllotmentResponse.model_validate(member) for member in members],
+            members=[
+                AllotmentResponse(
+                    allotment_id=allotment.allotment_id,
+                    project_id=allotment.project_id,
+                    employee_id=allotment.employee_id,
+                    employee_name=allotment.employee.full_name,
+                    role=allotment.employee.role,
+                )
+                for allotment in members
+            ]
         )
 
     async def remove_employee(
-        self, project_id: int, employee_id: int, current_user: EmployeeData
+        self, 
+        project_id: int, 
+        employee_id: int, 
+        current_user: EmployeeData
     ) -> dict[str, str | int]:
+        
         project = await self.repository.get_project_with_members(project_id)
+       
         if project is None:
             raise ProjectAllotmentNotFoundError()
-        self._require_project_lead(current_user, project.lead_id)
+            
         if employee_id == project.lead_id:
             raise AllotmentConflictError("Current project lead cannot be removed")
 
         allotment = await self.repository.get_membership(project_id, employee_id)
+        
         if allotment is None:
             raise AllotmentNotFoundError()
 
@@ -123,33 +149,32 @@ class ProjectAllotmentService:
             await self.db.rollback()
             raise
 
-        return {"message": "Employee removed and their project tasks deleted", "employee_id": employee_id}
+        return {"message": "Employee removed and their project tasks deleted", 
+                "employee_id": employee_id
+                }
 
         
     async def get_employee_allotments(
         self,
         employee_id: int,
-        current_user: EmployeeData,
     ) -> list[ProjectAllotment]:
 
-        if not current_user.is_active:
-            raise PermissionDeniedError()
-
-        # Only admin or the employee themselves.
-        if (
-            current_user.role != "admin"
-            and current_user.employee_id != employee_id
-        ):
-            raise PermissionDeniedError()
-
-        employee = await self.employee_repository.get_employee_by_id(
-            employee_id
-        )
+       
+        employee = await self.employee_repository.get_employee_by_id(employee_id)
 
         if employee is None:
             raise EmployeeNotFoundError()
 
-        return await self.repository.get_employee_allotments(
-            employee_id
-        )
+        allotments = await self.repository.get_employee_allotments(employee_id)
+
+        return [
+            AllotmentResponse(
+                allotment_id=allotment.allotment_id,
+                project_id=allotment.project_id,
+                employee_id=allotment.employee_id,
+                employee_name=employee.full_name,
+                role=employee.role,
+            )
+            for allotment in allotments
+        ]
 

@@ -23,9 +23,8 @@ class AllotmentResponse(BaseModel):
     allotment_id: int
     project_id: int
     employee_id: int
-    allotted_at: datetime
-    is_active: bool
-    employee: AllottedEmployeeResponse
+    employee_name : str
+    role: str
 
 
 class AllotmentListResponse(BaseModel):

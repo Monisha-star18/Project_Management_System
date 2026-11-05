@@ -7,7 +7,7 @@ from app.database.connection import engine
 #creating a session factory 
 SessionLocal = async_sessionmaker( bind=engine ,
                             autoflush=True,
-                            expire_on_commit=True
+                            expire_on_commit=False
                         )
 
 #dependecy creation 
