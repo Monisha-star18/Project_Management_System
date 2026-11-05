@@ -5,7 +5,9 @@ import pytest
 from sqlalchemy.exc import IntegrityError
 
 from app.exceptions.employee_exception import (
-    EmployeeAlreadyExistsError, EmployeeNotFoundError, InvalidEmployeeUpdateError,
+    EmployeeAlreadyExistsError,
+    EmployeeNotFoundError,
+    InvalidEmployeeUpdateError,
 )
 from app.schemas.employee import EmployeeCreate, EmployeeUpdate
 from app.services.employee_service import EmployeeService

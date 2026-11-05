@@ -9,9 +9,9 @@ from app.exceptions.auth_exception import PermissionDeniedError
 from app.exceptions.project_exception import (
     InvalidProjectLeadError,
     InvalidProjectUpdateError,
+    ProjectAccessDeniedError,
     ProjectAlreadyExistsError,
     ProjectNotFoundError,
-    ProjectAccessDeniedError
 )
 from app.models.employee import EmployeeData
 from app.models.project import ProjectDetails
@@ -23,10 +23,8 @@ from app.repositories.interfaces.project_repository_interface import (
     ProjectRepositoryInterface,
 )
 from app.schemas.project import (
-    PaginatedProjectResponse,
     ProjectCreate,
     ProjectLeadUpdate,
-    ProjectResponse,
     ProjectUpdate,
 )
 

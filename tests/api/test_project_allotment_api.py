@@ -1,8 +1,8 @@
 
 from datetime import date
 
-from app.models.employee import EmployeeData
 from app.core.security import hash_password
+from app.models.employee import EmployeeData
 
 
 # Create a project with our test team lead

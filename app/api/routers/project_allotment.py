@@ -1,8 +1,9 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Path, status
+from fastapi import APIRouter, BackgroundTasks, Depends, Path, status
 
 from app.api.dependency.auth import get_current_user, require_roles
+from app.api.dependency.employee_dependency import get_employee_service
 from app.api.dependency.project_allotment_dependency import (
     get_project_allotment_service,
 )
@@ -13,12 +14,9 @@ from app.schemas.project_allotment import (
     AllotmentListResponse,
     AllotmentResponse,
 )
-from app.services.project_allotment_service import ProjectAllotmentService
-from fastapi import BackgroundTasks
-
-from app.api.dependency.employee_dependency import get_employee_service
-from app.services.employee_service import EmployeeService
 from app.services.email.project_allotted_email import ProjectAllottedEmail
+from app.services.employee_service import EmployeeService
+from app.services.project_allotment_service import ProjectAllotmentService
 
 router = APIRouter(
     prefix="/api/projects", 
@@ -52,7 +50,7 @@ async def add_project_employee(
     background_tasks: BackgroundTasks,
     current_user: LeadUserDep,
     service: ServiceDep,
-    employee_service: EmployeeService = Depends(get_employee_service),
+    employee_service: Annotated[EmployeeService,Depends(get_employee_service),],
 ) -> AllotmentResponse:
 
     allotment = await service.add_employee(project_id, data, current_user)

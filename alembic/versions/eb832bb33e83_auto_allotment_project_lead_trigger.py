@@ -5,18 +5,15 @@ Revises: 7c2263fd67e9
 Create Date: 2026-11-04 18:42:06.952763
 
 """
-from typing import Sequence, Union
+from collections.abc import Sequence
 
 from alembic import op
-import sqlalchemy as sa
-
 
 # revision identifiers, used by Alembic.
 revision: str = 'eb832bb33e83'
-down_revision: Union[str, Sequence[str], None] = '7c2263fd67e9'
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
-from alembic import op
+down_revision: str | Sequence[str] | None = '7c2263fd67e9'
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:

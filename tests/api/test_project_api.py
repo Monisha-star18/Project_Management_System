@@ -1,10 +1,8 @@
 
 from datetime import date
 
-import pytest
-
-from app.models.employee import EmployeeData
 from app.core.security import hash_password
+from app.models.employee import EmployeeData
 
 
 def project_data(lead_id):

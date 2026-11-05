@@ -1,8 +1,9 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Path, status
+from fastapi import APIRouter, BackgroundTasks, Depends, Path, status
 
 from app.api.dependency.auth import get_current_user, require_roles
+from app.api.dependency.employee_dependency import get_employee_service
 from app.api.dependency.task_dependency import get_task_service
 from app.models.employee import EmployeeData
 from app.schemas.task import (
@@ -11,13 +12,9 @@ from app.schemas.task import (
     TaskResponse,
     TaskUpdate,
 )
-from app.services.task_service import TaskService
-from fastapi import BackgroundTasks
-
-from app.api.dependency.employee_dependency import get_employee_service
-from app.services.employee_service import EmployeeService
 from app.services.email.task_assigned_email import TaskAssignedEmail
-
+from app.services.employee_service import EmployeeService
+from app.services.task_service import TaskService
 
 router = APIRouter(
     prefix="/api",

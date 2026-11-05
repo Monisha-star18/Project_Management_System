@@ -6,8 +6,10 @@ from sqlalchemy.exc import IntegrityError
 
 from app.exceptions.employee_exception import EmployeeNotFoundError
 from app.exceptions.project_allotment_exception import (
-    AllotmentConflictError, AllotmentNotFoundError,
-    InvalidAllotmentEmployeeError, ProjectAllotmentNotFoundError,
+    AllotmentConflictError,
+    AllotmentNotFoundError,
+    InvalidAllotmentEmployeeError,
+    ProjectAllotmentNotFoundError,
 )
 from app.schemas.project_allotment import AllotmentCreate
 from app.services.project_allotment_service import ProjectAllotmentService

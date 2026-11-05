@@ -6,7 +6,11 @@ import pytest
 
 from app.exceptions.auth_exception import PermissionDeniedError
 from app.exceptions.project_exception import ProjectNotFoundError
-from app.exceptions.task_exception import TaskAssignmentError, TaskNotFoundError, InvalidTaskUpdateError
+from app.exceptions.task_exception import (
+    InvalidTaskUpdateError,
+    TaskAssignmentError,
+    TaskNotFoundError,
+)
 from app.schemas.task import TaskCreate, TaskProgressUpdate, TaskUpdate
 from app.services.task_service import TaskService
 

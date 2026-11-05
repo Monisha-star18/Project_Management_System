@@ -1,8 +1,7 @@
 import os
+from datetime import date
 
-import pytest
 import pytest_asyncio
-
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
@@ -10,15 +9,11 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from app.core.config import get_settings
+from app.core.security import create_access_token, hash_password
 from app.database.base import Base
 from app.database.session import get_session
 from app.main import app
-
-from datetime import date
-
 from app.models.employee import EmployeeData
-from app.core.security import hash_password, create_access_token
-
 
 # Fake settings for every test, so nothing touches your real .env, database or Mailjet.
 # conftest.py loads before the test files, i.e. before any "app" module is imported.

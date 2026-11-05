@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -10,15 +12,15 @@ from app.services.employee_service import EmployeeService
 
 
 def get_employee_repository(
-    db: AsyncSession = Depends(get_session),
+    db: Annotated[AsyncSession, Depends(get_session)]
 ) -> EmployeeRepositoryInterface:
 
     return EmployeeRepository(db)
 
 
 def get_employee_service(
-    repository: EmployeeRepositoryInterface = Depends(get_employee_repository),
-    db: AsyncSession = Depends(get_session),
+    repository: Annotated[EmployeeRepositoryInterface,Depends(get_employee_repository),],
+    db: Annotated[AsyncSession, Depends(get_session)]
 ) -> EmployeeService:
 
     return EmployeeService(repository, db)

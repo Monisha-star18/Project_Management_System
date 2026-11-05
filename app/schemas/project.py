@@ -1,11 +1,10 @@
 
-from datetime import date, datetime,timedelta
+from datetime import date, datetime, timedelta
 from typing import Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from app.exceptions.project_exception import InvalidProjectDurationError
-
 
 ProjectStatus = Literal[
     "planning",

@@ -4,7 +4,6 @@ from abc import ABC, abstractmethod
 import httpx
 
 from app.core.config import get_settings
-from app.utilites.logger import logger
 
 
 class BaseEmail(ABC):
@@ -21,7 +20,6 @@ class BaseEmail(ABC):
     @abstractmethod
     def build_message(self, full_name: str) -> tuple[str, str]:
         """Return the email subject and body."""
-        pass
 
     async def send(self, email: str, full_name: str) -> None:
         settings = get_settings()

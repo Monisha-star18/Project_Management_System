@@ -1,19 +1,15 @@
 
 from jwt.exceptions import InvalidTokenError as JWTDecodeError
 
-from app.core.security import (
-    create_access_token,
-    decode_access_token,
-    verify_password
-)
+from app.core.security import create_access_token, decode_access_token, verify_password
 from app.exceptions.auth_exception import (
+    InactiveUserError,
     InvalidCredentialsError,
     InvalidTokenError,
-    InactiveUserError
 )
 from app.models.employee import EmployeeData
 from app.repositories.interfaces.auth_repository_interface import (
-    AuthRepositoryInterface
+    AuthRepositoryInterface,
 )
 from app.utilites.logger import logger
 

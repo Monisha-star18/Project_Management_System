@@ -1,8 +1,10 @@
-import time 
+import time
+
 from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.utilites.logger import logger
+
 
 class LoggingMiddleware(BaseHTTPMiddleware):
 

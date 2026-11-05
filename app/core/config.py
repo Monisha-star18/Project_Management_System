@@ -4,6 +4,7 @@ from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy.engine import URL
 
+
 class Settings(BaseSettings):
     app_name: str = "Project Management System API"
 

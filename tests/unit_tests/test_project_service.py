@@ -7,7 +7,9 @@ from sqlalchemy.exc import IntegrityError
 
 from app.exceptions.auth_exception import PermissionDeniedError
 from app.exceptions.project_exception import (
-    InvalidProjectUpdateError, ProjectAlreadyExistsError, ProjectNotFoundError,
+    InvalidProjectUpdateError,
+    ProjectAlreadyExistsError,
+    ProjectNotFoundError,
 )
 from app.schemas.project import ProjectCreate, ProjectLeadUpdate, ProjectUpdate
 from app.services.project_service import ProjectService

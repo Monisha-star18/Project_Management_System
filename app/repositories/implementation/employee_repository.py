@@ -30,7 +30,7 @@ class EmployeeRepository(EmployeeRepositoryInterface):
        return new_employee
 
 
-    from sqlalchemy import select, func
+    from sqlalchemy import func, select
 
     async def get_all_employees(self, page: int, size: int):
 

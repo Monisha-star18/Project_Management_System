@@ -1,4 +1,3 @@
-
 from typing import Annotated
 
 from fastapi import Depends
@@ -20,15 +19,15 @@ from app.repositories.interfaces.project_repository_interface import (
 from app.services.project_service import ProjectService
 
 
-def get_project_repository(db:AsyncSession= Depends(get_session)) -> ProjectRepositoryInterface:
+def get_project_repository(db: Annotated[AsyncSession, Depends(get_session)]) -> ProjectRepositoryInterface:
     
     return ProjectRepository(db)
 
 
 def get_project_service(
-    repository:ProjectRepositoryInterface= Depends(get_project_repository),
-    employee_repository: EmployeeRepositoryInterface = Depends(get_employee_repository),
-    db:AsyncSession = Depends(get_session),
+    repository: Annotated[ProjectRepositoryInterface,Depends(get_project_repository),],
+    employee_repository: Annotated[EmployeeRepositoryInterface,Depends(get_employee_repository),],
+    db: Annotated[AsyncSession, Depends(get_session)],
 ) -> ProjectService:
     
     return ProjectService(

@@ -7,8 +7,8 @@ from app.exceptions.project_allotment_exception import (
     AllotmentConflictError,
     AllotmentNotFoundError,
     InvalidAllotmentEmployeeError,
-    ProjectAllotmentNotFoundError,
     ProjectAllotmentAccessDeniedError,
+    ProjectAllotmentNotFoundError,
 )
 from app.models.employee import EmployeeData
 from app.models.project import ProjectDetails

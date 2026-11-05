@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter,BackgroundTasks, Depends, Path, Query, status
+from fastapi import APIRouter, BackgroundTasks, Depends, Path, Query, status
 
 from app.api.dependency.auth import require_roles
 from app.api.dependency.employee_dependency import get_employee_service
@@ -11,8 +11,8 @@ from app.schemas.employee import (
     EmployeeUpdate,
     PaginatedEmployeeResponse,
 )
-from app.services.employee_service import EmployeeService
 from app.services.email.employee_created_email import EmployeeCreatedEmail
+from app.services.employee_service import EmployeeService
 
 router = APIRouter(
     prefix="/api/employees",
@@ -35,7 +35,7 @@ dependAll = [Depends(require_roles("admin", "employee", "team_lead"))]
 async def create_employee(
     employee: EmployeeCreate,
     background_tasks: BackgroundTasks,
-    service: EmployeeService=Depends(get_employee_service)
+    service: Annotated[EmployeeService, Depends(get_employee_service)]
 ) -> EmployeeData:
 
     new_employee = await service.create_employee(employee)
@@ -60,9 +60,9 @@ async def create_employee(
     description="Retrieve a paginated list of registered employees. Accessible to admins, team leads and employees. Supports page and size query parameters."
 )
 async def get_all_employees(
+    service: Annotated[EmployeeService, Depends(get_employee_service)],
     page: int = Query(1, ge=1),
     size: int = Query(10, ge=1, le=100),
-    service: EmployeeService = Depends(get_employee_service)
 )->dict:
     return await service.get_all_employees(page, size)
 
@@ -76,8 +76,8 @@ async def get_all_employees(
     description="Retrieve the details of a specific employee using their employee ID. Accessible to authenticated admins, team leads and employees."
 )
 async def get_employee_by_id(
+    service: Annotated[EmployeeService, Depends(get_employee_service)],
     employee_id: int = Path(..., gt=0),
-    service: EmployeeService = Depends(get_employee_service)
 )->EmployeeData:
     return await service.get_employee_by_id(employee_id)
 
@@ -93,7 +93,7 @@ async def get_employee_by_id(
 async def update_employee(
     employee_id: int,
     employee: EmployeeUpdate,
-    service: EmployeeService = Depends(get_employee_service)
+    service: Annotated[EmployeeService, Depends(get_employee_service)],
 )-> EmployeeData:
     return await service.update_employee(employee_id, employee)
 
@@ -107,7 +107,7 @@ async def update_employee(
 )
 async def delete_employee(
     employee_id: int,
-    service: EmployeeService = Depends(get_employee_service)
+    service: Annotated[EmployeeService, Depends(get_employee_service)],
 )-> dict:
     return await service.delete_employee(employee_id)
 

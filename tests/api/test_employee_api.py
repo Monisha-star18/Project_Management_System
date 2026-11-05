@@ -1,5 +1,4 @@
 
-import pytest
 
 
 VALID_EMPLOYEE = {

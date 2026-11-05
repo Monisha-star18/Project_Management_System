@@ -5,7 +5,9 @@ from sqlalchemy.orm import joinedload
 from app.models.project import ProjectDetails
 from app.models.project_allotment import ProjectAllotment
 from app.models.task import TaskDetails
-from app.repositories.interfaces.task_repository_interface import TaskRepositoryInterface
+from app.repositories.interfaces.task_repository_interface import (
+    TaskRepositoryInterface,
+)
 
 
 class TaskRepository(TaskRepositoryInterface):

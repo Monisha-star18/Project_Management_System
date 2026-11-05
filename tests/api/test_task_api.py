@@ -1,8 +1,8 @@
 
 from datetime import date
 
+from app.core.security import create_access_token, hash_password
 from app.models.employee import EmployeeData
-from app.core.security import hash_password, create_access_token
 
 
 # Create project and allot employee

@@ -1,11 +1,10 @@
 
 from typing import Any
 
-from sqlalchemy import func, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.project import ProjectDetails
-from app.models.project_allotment import ProjectAllotment
 from app.repositories.interfaces.project_repository_interface import (
     ProjectRepositoryInterface,
 )

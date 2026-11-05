@@ -1,4 +1,6 @@
-from fastapi import APIRouter,Depends
+from typing import Annotated
+
+from fastapi import APIRouter, Depends
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -25,7 +27,7 @@ async def health_check()->dict[str,str]:
     summary="Database Health Check",
     description="Checks PostgreSQL database connectivity."
 )
-async def database_health_check(db:AsyncSession=Depends(get_session))->dict[str,str]:
+async def database_health_check(db: Annotated[AsyncSession, Depends(get_session)],)->dict[str,str]:
 
     await db.execute(text("SELECT 1"))
 

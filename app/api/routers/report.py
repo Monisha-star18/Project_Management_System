@@ -1,10 +1,11 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, Path
 
 from app.api.dependency.auth import require_roles
 from app.api.dependency.report_dependency import get_report_service
 from app.schemas.report import ProjectReportResponse
 from app.services.report_service import ReportService
-
 
 router = APIRouter(
     prefix="/api/reports",
@@ -26,8 +27,9 @@ dependAll = [
     description="Generate a detailed project report containing project information, total active allotted employees, total tasks, completed tasks, task completion percentage and overall project progress percentage calculated from the average progress of all project tasks. Accessible to admins, team leads and employees."
 )
 async def get_project_report(
+    service: Annotated[ReportService, Depends(get_report_service)],
     project_id: int = Path(..., gt=0),
-    service: ReportService = Depends(get_report_service)
+    
 ) -> dict:
 
     return await service.get_project_report(project_id)

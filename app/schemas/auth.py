@@ -3,7 +3,6 @@ from typing import Literal
 
 from pydantic import BaseModel
 
-
 Role = Literal["admin","team_lead","employee"]
 
 
@@ -12,6 +11,7 @@ class TokenResponse(BaseModel):
     token_type: str = "bearer"
 
 from pydantic import BaseModel, EmailStr
+
 
 class LoginRequest(BaseModel):
     email: EmailStr

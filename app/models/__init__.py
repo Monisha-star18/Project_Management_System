@@ -5,7 +5,7 @@ from app.models.task import TaskDetails
 
 __all__ = [
     "EmployeeData",
-    "ProjectDetails",
     "ProjectAllotment",
+    "ProjectDetails",
     "TaskDetails",
 ]

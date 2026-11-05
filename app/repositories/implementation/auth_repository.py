@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.employee import EmployeeData
 from app.repositories.interfaces.auth_repository_interface import (
-    AuthRepositoryInterface
+    AuthRepositoryInterface,
 )
 
 

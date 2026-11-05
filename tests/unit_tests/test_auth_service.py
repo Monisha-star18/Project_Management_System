@@ -4,7 +4,11 @@ from unittest.mock import AsyncMock
 import pytest
 from jwt.exceptions import InvalidTokenError as JWTDecodeError
 
-from app.exceptions.auth_exception import InvalidCredentialsError, InvalidTokenError, InactiveUserError
+from app.exceptions.auth_exception import (
+    InactiveUserError,
+    InvalidCredentialsError,
+    InvalidTokenError,
+)
 from app.services.auth_service import AuthService
 
 

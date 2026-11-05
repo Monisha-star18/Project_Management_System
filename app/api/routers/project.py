@@ -8,14 +8,12 @@ from app.api.dependency.project_dependency import get_project_service
 from app.models.employee import EmployeeData
 from app.models.project import ProjectDetails
 from app.schemas.project import (
-    PaginatedProjectResponse,
     ProjectCreate,
     ProjectLeadUpdate,
     ProjectResponse,
     ProjectUpdate,
 )
 from app.services.project_service import ProjectService
-
 
 router = APIRouter(
     prefix="/api/projects",

@@ -1,10 +1,20 @@
 from datetime import date, datetime
+from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, Integer,String,Identity,UniqueConstraint,Date,Boolean, text,Index
-from sqlalchemy.orm import Mapped,mapped_column,relationship
+from sqlalchemy import (
+    Boolean,
+    Date,
+    DateTime,
+    Identity,
+    Index,
+    Integer,
+    String,
+    UniqueConstraint,
+    text,
+)
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.base import Base
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from app.models.project import ProjectDetails
