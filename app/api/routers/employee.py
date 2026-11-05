@@ -43,7 +43,7 @@ async def create_employee(
     email_service = EmployeeCreatedEmail()
 
     background_tasks.add_task(
-        email_service.send_safely,
+        email_service.send,
         new_employee.email,
         new_employee.full_name,
     )

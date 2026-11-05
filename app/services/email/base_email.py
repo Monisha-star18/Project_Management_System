@@ -56,11 +56,3 @@ class BaseEmail(ABC):
                     raise RuntimeError("Mailjet rejected the email")
 
         
-        async def send_safely( self, email: str, full_name: str ) -> None:
-            try:
-                await self.send(email, full_name)
-            except (httpx.HTTPError, RuntimeError):
-                logger.exception(
-                    "Failed to send notification email to %s",
-                    email,
-                )
