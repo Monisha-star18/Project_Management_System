@@ -32,17 +32,17 @@ class TaskAssignedEmail(BaseEmail):
         body = f"""
                 Hello {full_name},
 
-                A new task has been assigned to you.
+                    A new task has been assigned to you.
 
-                Project ID: {self.project_id}
-                Task: {self.task_title}
-                Priority: {self.priority}
-                Start Date: {self.start_date}
-                Due Date: {self.due_date}
-                Assigned By: {self.lead_name}
+                    Project ID: {self.project_id}
+                    Task: {self.task_title}
+                    Priority: {self.priority}
+                    Start Date: {self.start_date}
+                    Due Date: {self.due_date}
+                    Assigned By: {self.lead_name}
 
-                Please log in to the Project Management System
-                to view your task and update its progress.
+                    Please log in to the Project Management System
+                    to view your task and update its progress.
 
                 Regards,
                 Project Management Team

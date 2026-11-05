@@ -11,16 +11,16 @@ class EmployeeCreatedEmail(BaseEmail):
         body = f"""
                 Hello {full_name},
 
-                Welcome to the Company !
+                    Welcome to the Company !
 
-                Your employee account has been successfully created.
+                    Your employee account has been successfully created.
 
-                You can now access the system using your registered
-                credentials.
+                    You can now access the system using your registered
+                    credentials.
 
-                You will receive further notifications when:
-                - You are allotted to a project.
-                - A task is assigned to you.
+                    You will receive further notifications when:
+                    - You are allotted to a project.
+                    - A task is assigned to you.
 
                 Regards,
                 Admin Team

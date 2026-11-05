@@ -11,6 +11,7 @@ from app.exceptions.project_exception import (
     InvalidProjectUpdateError,
     ProjectAlreadyExistsError,
     ProjectNotFoundError,
+    ProjectAccessDeniedError
 )
 from app.models.employee import EmployeeData
 from app.models.project import ProjectDetails
@@ -53,7 +54,7 @@ class ProjectService:
             raise PermissionDeniedError()
 
         if project.lead_id == current_user.employee_id :
-            return
+            raise ProjectAccessDeniedError()
 
         raise PermissionDeniedError()
 
@@ -79,8 +80,12 @@ class ProjectService:
         project: ProjectCreate,
         current_user: EmployeeData,
     ) -> ProjectDetails:
+        
+        await self._validate_lead(project.lead_id)
 
         try:
+            
+
             new_project = await self.repository.create_new_project(
                 project,
                 current_user.employee_id
@@ -174,6 +179,8 @@ class ProjectService:
         project_id: int,
         data: ProjectLeadUpdate
     ) -> ProjectDetails:
+
+        await self._validate_lead(data.lead_id)
 
         project = await self.repository.get_project_by_id(project_id)
 

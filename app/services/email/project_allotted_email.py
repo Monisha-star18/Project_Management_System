@@ -20,13 +20,13 @@ class ProjectAllottedEmail(BaseEmail):
         body = f"""
             Hello {full_name},
 
-            You have been successfully allotted to a project.
+                You have been successfully allotted to a project.
 
-            Project ID: {self.project_id}
-            Allotted By: {self.lead_name}
+                Project ID: {self.project_id}
+                Allotted By: {self.lead_name}
 
-            Please log in to the Project Management System
-            to view your project details.
+                Please log in to the Project Management System
+                to view your project details.
 
             Regards,
             Project Management Team

@@ -39,8 +39,9 @@ class InvalidProjectDurationError(ValueError):
             "Project duration must be at least 7 days"
         )
 
-class ProjectAlreadyExistsError(Exception):
+class ProjectAccessDeniedError(AppException):
     def __init__(self):
         super().__init__(
-            "Project name already exists"
+            message="This team lead does not have permission to access this project's details",
+            status_code=403,
         )
