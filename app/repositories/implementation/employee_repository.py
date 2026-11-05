@@ -1,5 +1,5 @@
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import hash_password
@@ -30,7 +30,9 @@ class EmployeeRepository(EmployeeRepositoryInterface):
        return new_employee
 
 
-    async def get_all_employees(self, page: int, size: int) -> tuple[list[EmployeeData], int]:
+    from sqlalchemy import select, func
+
+    async def get_all_employees(self, page: int, size: int):
 
         query = (
             select(EmployeeData)
@@ -42,7 +44,15 @@ class EmployeeRepository(EmployeeRepositoryInterface):
 
         result = await self.db.execute(query)
 
-        return list(result.scalars().all())
+        count_result = await self.db.execute(
+            select(func.count(EmployeeData.employee_id))
+            .where(EmployeeData.is_active.is_(True))
+        )
+
+        employees = result.scalars().all()
+        total = count_result.scalar_one()
+
+        return employees, total
 
 
     async def get_employee_by_id(self, employee_id: int) -> EmployeeData | None:

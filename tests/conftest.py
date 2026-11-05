@@ -14,6 +14,12 @@ from app.database.base import Base
 from app.database.session import get_session
 from app.main import app
 
+from datetime import date
+
+from app.models.employee import EmployeeData
+from app.core.security import hash_password, create_access_token
+
+
 # Fake settings for every test, so nothing touches your real .env, database or Mailjet.
 # conftest.py loads before the test files, i.e. before any "app" module is imported.
 os.environ.update(
@@ -88,3 +94,64 @@ async def client(test_session):
 
     finally:
         app.dependency_overrides.pop(get_session, None)
+
+@pytest_asyncio.fixture
+async def admin(test_session):
+
+    admin = EmployeeData(
+        full_name="Test Admin",
+        email="admin@test.com",
+        phone="9876543210",
+        department="IT",
+        role="admin",
+        password_hash=hash_password("Admin@123"),
+        joining_date=date(2026, 1, 1),
+        is_active=True
+    )
+
+    test_session.add(admin)
+    await test_session.commit()
+    await test_session.refresh(admin)
+
+    return admin
+
+
+@pytest_asyncio.fixture
+async def auth_headers(admin):
+
+    token = create_access_token(admin.email)
+
+    return {
+        "Authorization": f"Bearer {token}"
+    }
+
+
+@pytest_asyncio.fixture
+async def team_lead(test_session):
+
+    lead = EmployeeData(
+        full_name="Test Team Lead",
+        email="lead@test.com",
+        phone="9876543211",
+        department="IT",
+        role="team_lead",
+        password_hash=hash_password("Lead@123"),
+        joining_date=date(2026, 1, 1),
+        is_active=True,
+    )
+
+    test_session.add(lead)
+    await test_session.commit()
+    await test_session.refresh(lead)
+
+    return lead
+
+
+@pytest_asyncio.fixture
+async def lead_headers(team_lead):
+
+    token = create_access_token(team_lead.email)
+
+    return {
+        "Authorization": f"Bearer {token}"
+    }
