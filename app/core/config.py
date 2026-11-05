@@ -29,6 +29,8 @@ class Settings(BaseSettings):
     mailjet_sender_email: str
     mailjet_sender_name: str 
 
+    team_lead_sender_email: str
+
     @property
     def database_url(self) -> URL:
         return URL.create(

@@ -14,6 +14,11 @@ from app.schemas.project_allotment import (
     AllotmentResponse,
 )
 from app.services.project_allotment_service import ProjectAllotmentService
+from fastapi import BackgroundTasks
+
+from app.api.dependency.employee_dependency import get_employee_service
+from app.services.employee_service import EmployeeService
+from app.services.email.project_allotted_email import ProjectAllottedEmail
 
 router = APIRouter(
     prefix="/api/projects", 
@@ -37,17 +42,34 @@ EmployeeId = Annotated[int, Path(gt=0)]
     "/{project_id}/allotments",
     response_model=AllotmentResponse,
     status_code=status.HTTP_201_CREATED,
-    dependencies = dependLead,
+    dependencies=dependLead,
     summary="Allot an employee to a project (project lead only)",
-) 
+)
 async def add_project_employee(
     project_id: ProjectId,
     data: AllotmentCreate,
+    background_tasks: BackgroundTasks,
     current_user: LeadUserDep,
     service: ServiceDep,
+    employee_service: EmployeeService = Depends(get_employee_service),
 ) -> AllotmentResponse:
 
-    return await service.add_employee(project_id, data, current_user)
+    allotment = await service.add_employee(project_id, data, current_user)
+
+    employee = await employee_service.get_employee_by_id(data.employee_id)
+
+    email_service = ProjectAllottedEmail(
+        project_id=project_id,
+        lead_name=current_user.full_name,
+    )
+
+    background_tasks.add_task(
+        email_service.send,
+        employee.email,
+        employee.full_name,
+    )
+
+    return allotment
 
 
 @router.get(

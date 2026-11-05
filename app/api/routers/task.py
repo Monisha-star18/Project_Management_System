@@ -12,6 +12,11 @@ from app.schemas.task import (
     TaskUpdate,
 )
 from app.services.task_service import TaskService
+from fastapi import BackgroundTasks
+
+from app.api.dependency.employee_dependency import get_employee_service
+from app.services.employee_service import EmployeeService
+from app.services.email.task_assigned_email import TaskAssignedEmail
 
 
 router = APIRouter(
@@ -47,12 +52,36 @@ EmployeeId = Annotated[int, Path(gt=0)]
 async def create_task(
     project_id: ProjectId,
     data: TaskCreate,
+    background_tasks: BackgroundTasks,
     current_user: CurrentUserDep,
-    service: ServiceDep
+    service: ServiceDep,
+    employee_service: EmployeeService = Depends(get_employee_service),
 ) -> TaskResponse:
 
-    return await service.create(project_id, data, current_user)
+    task = await service.create(
+        project_id, data, current_user
+    )
 
+    employee = await employee_service.get_employee_by_id(
+        data.employee_id
+    )
+
+    email_service = TaskAssignedEmail(
+        project_id=project_id,
+        task_title=task.task_title,
+        priority=task.priority,
+        start_date=task.start_date,
+        due_date=task.due_date,
+        lead_name=current_user.full_name,
+    )
+
+    background_tasks.add_task(
+        email_service.send,
+        employee.email,
+        employee.full_name,
+    )
+
+    return task
 
 @router.get(
     "/projects/{project_id}/tasks",
