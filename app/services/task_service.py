@@ -6,6 +6,7 @@ from app.exceptions.task_exception import (
     TaskAssignmentError,
     TaskNotFoundError,
     InvalidTaskUpdateError,
+    TaskProjectAccessDeniedError,
 )
 from app.models.employee import EmployeeData
 from app.models.project import ProjectDetails
@@ -37,8 +38,11 @@ class TaskService:
         project: ProjectDetails
     ) -> None:
 
-        if project.lead_id != user.employee_id:
+        if not user.is_active:
             raise PermissionDeniedError()
+
+        if project.lead_id != user.employee_id:
+            raise TaskProjectAccessDeniedError()
 
     async def _project(
         self,
@@ -150,11 +154,9 @@ class TaskService:
 
         project = await self._project(project_id)
 
-        if (
-            user.role == "team_lead"
-            and project.lead_id != user.employee_id
-        ):
-            raise PermissionDeniedError()
+        if user.role == "team_lead":
+            self._lead(user, project)
+
 
         tasks = await self.repository.list_tasks(
             project_id=project_id

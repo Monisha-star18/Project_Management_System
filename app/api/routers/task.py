@@ -86,8 +86,8 @@ async def create_task(
 @router.get(
     "/projects/{project_id}/tasks",
     response_model=list[TaskResponse],
-    dependencies=dependLeadAdmin,
-    summary="List project tasks (project lead or admin)"
+    dependencies=dependAll,
+    summary="List project tasks "
 )
 async def list_project_tasks(
     project_id: ProjectId,

@@ -14,3 +14,10 @@ class TaskAssignmentError(AppException):
 class InvalidTaskUpdateError(AppException):
     def __init__(self, message: str) -> None:
         super().__init__(message, status_code=422)
+
+class TaskProjectAccessDeniedError(AppException):
+    def __init__(self):
+        super().__init__(
+            message="Only the assigned project team lead can create tasks for this project",
+            status_code=403,
+        )

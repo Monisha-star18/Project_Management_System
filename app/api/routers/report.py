@@ -12,8 +12,8 @@ router = APIRouter(
 )
 
 
-dependAdminLead = [
-    Depends(require_roles("admin", "team_lead"))
+dependAll = [
+    Depends(require_roles("admin", "team_lead","employee"))
 ]
 
 
@@ -21,7 +21,7 @@ dependAdminLead = [
 @router.get(
     "/projects/{project_id}",
     response_model=ProjectReportResponse,
-    dependencies=dependAdminLead,
+    dependencies=dependAll,
     summary="Get project report",
     description="Get project details, employee count, total tasks, completed tasks and completion percentage"
 )

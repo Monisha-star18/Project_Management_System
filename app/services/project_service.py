@@ -53,10 +53,9 @@ class ProjectService:
         if not current_user.is_active:
             raise PermissionDeniedError()
 
-        if project.lead_id == current_user.employee_id :
+        if project.lead_id != current_user.employee_id :
             raise ProjectAccessDeniedError()
 
-        raise PermissionDeniedError()
 
     async def _validate_lead(
         self,

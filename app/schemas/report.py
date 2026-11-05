@@ -9,3 +9,4 @@ class ProjectReportResponse(BaseModel):
     total_tasks: int
     completed_tasks: int
     completion_percentage: float
+    overall_progress_percentage: float

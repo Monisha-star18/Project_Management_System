@@ -8,8 +8,10 @@ from app.exceptions.project_allotment_exception import (
     AllotmentNotFoundError,
     InvalidAllotmentEmployeeError,
     ProjectAllotmentNotFoundError,
+    ProjectAllotmentAccessDeniedError,
 )
 from app.models.employee import EmployeeData
+from app.models.project import ProjectDetails
 from app.models.project_allotment import ProjectAllotment
 from app.repositories.interfaces.employee_repository_interface import (
     EmployeeRepositoryInterface,
@@ -35,7 +37,19 @@ class ProjectAllotmentService:
         self.employee_repository = employee_repository
         self.db = db
 
-    
+    @staticmethod
+    def _check_project_lead(
+        current_user: EmployeeData,
+        project: ProjectDetails,
+    ) -> None:
+
+        if not current_user.is_active:
+            raise PermissionDeniedError()
+
+        if project.lead_id != current_user.employee_id:
+            raise ProjectAllotmentAccessDeniedError()
+        
+        
     async def add_employee(
         self, 
         project_id: int, 
@@ -47,6 +61,8 @@ class ProjectAllotmentService:
         
         if project is None:
             raise ProjectAllotmentNotFoundError()
+
+        self._check_project_lead(current_user, project)
         
         employee = await self.employee_repository.get_employee_by_id(data.employee_id)
         

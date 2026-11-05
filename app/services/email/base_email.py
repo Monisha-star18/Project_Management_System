@@ -6,9 +6,17 @@ import httpx
 from app.core.config import get_settings
 from app.utilites.logger import logger
 
+
 class BaseEmail(ABC):
 
     MAILJET_URL = "https://api.mailjet.com/v3.1/send"
+
+    def __init__(self, sender_email: str | None = None):
+        settings = get_settings()
+
+        self.sender_email = (
+            sender_email or settings.mailjet_sender_email
+        )
 
     @abstractmethod
     def build_message(self, full_name: str) -> tuple[str, str]:
@@ -24,7 +32,7 @@ class BaseEmail(ABC):
             "Messages": [
                 {
                     "From": {
-                        "Email": settings.mailjet_sender_email,
+                        "Email": self.sender_email,
                         "Name": settings.mailjet_sender_name,
                     },
                     "To": [
@@ -54,5 +62,3 @@ class BaseEmail(ABC):
             for message in response.json().get("Messages", []):
                 if message.get("Status") != "success":
                     raise RuntimeError("Mailjet rejected the email")
-
-        

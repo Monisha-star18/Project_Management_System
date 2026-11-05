@@ -19,3 +19,10 @@ class InvalidAllotmentEmployeeError(AppException):
 class ProjectAllotmentNotFoundError(AppException):
     def __init__(self) -> None:
         super().__init__("Project not found", status_code=404)
+
+class ProjectAllotmentAccessDeniedError(AppException):
+    def __init__(self):
+        super().__init__(
+            message="This team lead does not have permission to allot employees to this project",
+            status_code=403,
+        )

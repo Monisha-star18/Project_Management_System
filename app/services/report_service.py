@@ -40,10 +40,20 @@ class ReportService:
             else 0.0
         )
 
+        overall_progress_percentage = (
+            round(
+                sum(task.progress_percentage or 0 for task in tasks)
+                / len(tasks),
+                2
+            )
+            if tasks else 0.0
+        )
+
         return {
             "project": project,
             "total_employees": total_employees,
             "total_tasks": total_tasks,
             "completed_tasks": completed_tasks,
             "completion_percentage": completion_percentage,
+            "overall_progress_percentage":overall_progress_percentage,
         }
