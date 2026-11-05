@@ -42,6 +42,11 @@ TaskId = Annotated[int, Path(gt=0)]
 EmployeeId = Annotated[int, Path(gt=0)]
 
 
+EmployeeServiceDep = Annotated[
+    EmployeeService,
+    Depends(get_employee_service),
+]
+
 @router.post(
     "/projects/{project_id}/tasks",
     response_model=TaskResponse,
@@ -56,7 +61,7 @@ async def create_task(
     background_tasks: BackgroundTasks,
     current_user: CurrentUserDep,
     service: ServiceDep,
-    employee_service: EmployeeService = Depends(get_employee_service),
+    employee_service: EmployeeServiceDep,
 ) -> TaskResponse:
 
     task = await service.create(
